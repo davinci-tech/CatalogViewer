@@ -7,15 +7,15 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from '@/hooks/use-mobile';
 import React, { useEffect, useState } from 'react';
 import type { APIGrade } from '@/lib/api-grades';
-import type { APIAbsent } from '@/lib/api-absents'; // Added
+import type { APIAbsent } from '@/lib/api-absents';
 import { SubjectDetailDrawerContent } from './subject-detail-drawer-content';
 
 export interface SubjectSummaryData {
   subjectID: string;
-  subjectName: string; // Already formatted
+  subjectName: string;
   averageScore: number;
   grades: APIGrade[];
-  absences: APIAbsent[]; // Added
+  absences: APIAbsent[];
 }
 
 interface SubjectSummaryCardProps {
@@ -24,7 +24,7 @@ interface SubjectSummaryCardProps {
 
 export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
   const [mounted, setMounted] = useState(false);
-  const isMobile = useIsMobile(); // Will be undefined on SSR and initial client render
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     setMounted(true);
@@ -52,8 +52,6 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
   );
 
   if (!mounted) {
-    // Fallback for SSR and initial client render before isMobile is determined.
-    // Renders a non-interactive card to prevent layout shifts and hydration errors.
     return (
       <Card className="shadow-md flex flex-col justify-between h-full">
         <CardHeader className="pb-2 pt-4">
@@ -76,7 +74,6 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
     );
   }
 
-  // At this point, 'mounted' is true, and 'isMobile' is determined.
   // Mobile: isMobile (screen width < 768px) -> use Drawer (bottom sheet)
   // Desktop: !isMobile (screen width >= 768px) -> use Sheet (side panel, half screen)
   if (isMobile) { // Mobile
@@ -86,7 +83,12 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
           {cardInteractiveContent}
         </DrawerTrigger>
         <DrawerContent>
-          <SubjectDetailDrawerContent subjectName={summary.subjectName} grades={summary.grades} absences={summary.absences} />
+          <SubjectDetailDrawerContent 
+            subjectName={summary.subjectName} 
+            grades={summary.grades} 
+            absences={summary.absences} 
+            isSheet={false} 
+          />
         </DrawerContent>
       </Drawer>
     );
@@ -97,9 +99,16 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
           {cardInteractiveContent}
         </SheetTrigger>
         <SheetContent side="right" className="md:w-1/2 md:max-w-none"> 
-          <SubjectDetailDrawerContent subjectName={summary.subjectName} grades={summary.grades} absences={summary.absences} />
+          <SubjectDetailDrawerContent 
+            subjectName={summary.subjectName} 
+            grades={summary.grades} 
+            absences={summary.absences} 
+            isSheet={true} 
+          />
         </SheetContent>
       </Sheet>
     );
   }
 }
+
+    

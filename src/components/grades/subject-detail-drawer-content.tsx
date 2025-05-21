@@ -6,8 +6,14 @@ import type { APIGrade } from '@/lib/api-grades';
 import type { APIAbsent } from '@/lib/api-absents';
 import {
   DrawerFooter,
-  DrawerClose
+  DrawerClose,
+  DrawerHeader, // Added for accessibility
+  DrawerTitle,   // Added for accessibility
 } from "@/components/ui/drawer";
+import {
+  SheetHeader, // Added for accessibility
+  SheetTitle,  // Added for accessibility
+} from "@/components/ui/sheet"; // Added for accessibility
 import {
   Table,
   TableBody,
@@ -27,12 +33,13 @@ interface SubjectDetailDrawerContentProps {
   subjectName: string;
   grades: APIGrade[];
   absences: APIAbsent[];
+  isSheet?: boolean; // To conditionally render SheetHeader/DrawerHeader
 }
 
 type SortableGradeColumn = 'score' | 'date' | 'lastUpdate';
 type SortableAbsenceColumn = 'date' | 'motivated' | 'lastUpdate';
 
-export function SubjectDetailDrawerContent({ subjectName, grades, absences }: SubjectDetailDrawerContentProps) {
+export function SubjectDetailDrawerContent({ subjectName, grades, absences, isSheet }: SubjectDetailDrawerContentProps) {
   const [gradeSortColumn, setGradeSortColumn] = React.useState<SortableGradeColumn>('date');
   const [gradeSortDirection, setGradeSortDirection] = React.useState<'asc' | 'desc'>('desc');
   
@@ -83,7 +90,7 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
         comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
       } else if (absenceSortColumn === 'motivated') {
         if (a.motivated === b.motivated) comparison = 0;
-        else if (a.motivated) comparison = -1; // true (motivated) comes first in ascending
+        else if (a.motivated) comparison = -1; 
         else comparison = 1;
       } else if (absenceSortColumn === 'lastUpdate') {
         comparison = new Date(a.lastUpdate).getTime() - new Date(b.lastUpdate).getTime();
@@ -128,9 +135,23 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
     </TableHead>
   );
 
+  const AccessibleHeader = () => (
+    <div className="sr-only">
+      {isSheet ? (
+        <SheetHeader>
+          <SheetTitle>{subjectName} - Details</SheetTitle>
+        </SheetHeader>
+      ) : (
+        <DrawerHeader>
+          <DrawerTitle>{subjectName} - Details</DrawerTitle>
+        </DrawerHeader>
+      )}
+    </div>
+  );
 
   return (
     <div className="flex flex-col h-full">
+      <AccessibleHeader />
       <div className="p-4 flex-grow overflow-hidden">
         <ScrollArea className="h-full">
           <h3 className="text-lg font-semibold mb-1 mt-0">Grade Details</h3>
@@ -219,3 +240,4 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
   );
 }
 
+    
