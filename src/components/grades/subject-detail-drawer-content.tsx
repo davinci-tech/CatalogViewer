@@ -21,9 +21,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { ClientDate } from '@/components/ui/client-date';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowUp, ArrowDown } from 'lucide-react';
-import { cn } from "@/lib/utils"; // Added import
+import { cn } from "@/lib/utils";
 
 interface SubjectDetailDrawerContentProps {
   subjectName: string;
@@ -33,7 +32,6 @@ interface SubjectDetailDrawerContentProps {
 type SortableColumn = 'score' | 'date' | 'lastUpdate';
 
 export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetailDrawerContentProps) {
-  const [selectedRows, setSelectedRows] = React.useState<Set<string>>(new Set());
   const [sortColumn, setSortColumn] = React.useState<SortableColumn>('date');
   const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('desc');
 
@@ -63,37 +61,11 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
   }, [grades, sortColumn, sortDirection]);
 
   React.useEffect(() => {
-    // Reset selection and sort when grades data changes (e.g., opening for a new subject)
-    setSelectedRows(new Set());
+    // Reset sort when grades data changes (e.g., opening for a new subject)
     setSortColumn('date');
     setSortDirection('desc');
   }, [grades]);
 
-  const getRowId = (grade: APIGrade) => grade.id;
-
-  const handleSelectAll = (checked: boolean | 'indeterminate') => {
-    if (checked === true) {
-      const allRowIds = new Set(sortedGrades.map(grade => getRowId(grade)));
-      setSelectedRows(allRowIds);
-    } else {
-      setSelectedRows(new Set());
-    }
-  };
-
-  const handleSelectRow = (rowId: string, checked: boolean | 'indeterminate') => {
-    const newSelectedRows = new Set(selectedRows);
-    if (checked === true) {
-      newSelectedRows.add(rowId);
-    } else {
-      newSelectedRows.delete(rowId);
-    }
-    setSelectedRows(newSelectedRows);
-  };
-
-  const numSelected = selectedRows.size;
-  const numTotal = sortedGrades.length;
-  const allSelected = numTotal > 0 && numSelected === numTotal;
-  const someSelected = numSelected > 0 && numSelected < numTotal;
 
   const SortableHeader = ({ column, label, className }: { column: SortableColumn, label: string, className?: string }) => (
     <TableHead className={cn("cursor-pointer", className)} onClick={() => handleSort(column)}>
@@ -111,7 +83,7 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
       <DrawerHeader className="text-left">
         <DrawerTitle>{subjectName} - Grade Details</DrawerTitle>
         <DrawerDescription>
-          A detailed list of your grades for {subjectName}. Click column headers to sort.
+          A detailed list of your grades ({grades.length} in total) for {subjectName}. Click column headers to sort.
         </DrawerDescription>
       </DrawerHeader>
       <div className="p-4 flex-grow overflow-hidden">
@@ -120,37 +92,14 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[50px]">
-                    <Checkbox
-                      checked={allSelected ? true : (someSelected ? 'indeterminate' : false)}
-                      onCheckedChange={handleSelectAll}
-                      disabled={numTotal === 0}
-                      aria-label="Select all rows"
-                    />
-                  </TableHead>
                   <SortableHeader column="score" label="Grade" className="w-[100px]" />
                   <SortableHeader column="date" label="Date" />
                   <SortableHeader column="lastUpdate" label="Update Time" />
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sortedGrades.map((grade) => {
-                  const rowId = getRowId(grade);
-                  const isSelected = selectedRows.has(rowId);
-                  return (
-                    <TableRow
-                      key={rowId}
-                      data-state={isSelected ? "selected" : ""}
-                      onClick={() => handleSelectRow(rowId, !isSelected)}
-                      className="cursor-pointer"
-                    >
-                      <TableCell>
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={(checked) => handleSelectRow(rowId, checked)}
-                          aria-label={`Select row for grade ID ${rowId}`}
-                        />
-                      </TableCell>
+                {sortedGrades.map((grade) => (
+                    <TableRow key={grade.id}>
                       <TableCell className="font-medium">{grade.score}</TableCell>
                       <TableCell>
                         <ClientDate dateString={grade.date} dateFormat="MMM dd, yyyy" />
@@ -159,8 +108,7 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
                         <ClientDate dateString={grade.lastUpdate} dateFormat="MMM dd, yyyy HH:mm" />
                       </TableCell>
                     </TableRow>
-                  );
-                })}
+                  ))}
               </TableBody>
             </Table>
           ) : (
@@ -174,10 +122,7 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
           )}
         </ScrollArea>
       </div>
-      <DrawerFooter className="flex-col sm:flex-row sm:justify-between items-center pt-2 border-t">
-        <p className="text-sm text-muted-foreground mb-2 sm:mb-0">
-          {numSelected} of {numTotal} row(s) selected.
-        </p>
+      <DrawerFooter className="pt-2 border-t">
         <DrawerClose asChild>
           <Button variant="outline">Close</Button>
         </DrawerClose>
