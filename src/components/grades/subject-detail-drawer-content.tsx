@@ -85,7 +85,11 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
       if (absenceSortColumn === 'date') {
         comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
       } else if (absenceSortColumn === 'motivated') {
-        comparison = (a.motivated === b.motivated)? 0 : a.motivated? -1 : 1; // true (motivated) first
+        // true (motivated) comes before false (unmotivated) when 'asc'
+        // false (unmotivated) comes before true (motivated) when 'desc'
+        if (a.motivated === b.motivated) comparison = 0;
+        else if (a.motivated) comparison = -1; // true is "smaller"
+        else comparison = 1; // false is "larger"
       } else if (absenceSortColumn === 'lastUpdate') {
         comparison = new Date(a.lastUpdate).getTime() - new Date(b.lastUpdate).getTime();
       }
@@ -97,22 +101,22 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
   React.useEffect(() => {
     setGradeSortColumn('date');
     setGradeSortDirection('desc');
-    setAbsenceSortColumn('date'); // Added
-    setAbsenceSortDirection('desc'); // Added
+    setAbsenceSortColumn('date'); 
+    setAbsenceSortDirection('desc'); 
 
     const timer = setTimeout(() => {
       closeButtonRef.current?.focus({ preventScroll: true });
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [grades, absences]); // Added absences dependency
+  }, [grades, absences]);
 
-  const SortableHeader = <T extends string>({ column, label, currentSortColumn, handleSort, className }: { column: T, label: string, currentSortColumn: T, currentSortDirection: 'asc' | 'desc', handleSort: (col: T) => void, className?: string }) => (
+  const SortableHeader = <T extends string>({ column, label, currentSortColumn, currentSortDirection, handleSort, className }: { column: T, label: string, currentSortColumn: T, currentSortDirection: 'asc' | 'desc', handleSort: (col: T) => void, className?: string }) => (
     <TableHead className={cn("cursor-pointer", className)} onClick={() => handleSort(column)}>
       <div className="flex items-center">
         {label}
         {currentSortColumn === column && (
-          gradeSortDirection === 'asc' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" />
+          currentSortDirection === 'asc' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" />
         )}
       </div>
     </TableHead>
@@ -132,7 +136,7 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
 
   return (
     <div className="flex flex-col h-full">
-      <DrawerHeader className="text-left flex-shrink-0">
+      <DrawerHeader className="text-left">
         <DrawerTitle>{subjectName} - Details</DrawerTitle>
         <DrawerDescription>
           Grade and absence information for {subjectName}.
@@ -184,7 +188,7 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
            <p className="text-sm text-muted-foreground mb-3">
             A detailed list of your absences ({absences.length} in total). Click column headers to sort.
           </p>
-          {sortedAbsences.length > 0 ? ( // Added
+          {sortedAbsences.length > 0 ? ( 
             <Table>
               <TableHeader>
                 <TableRow>
