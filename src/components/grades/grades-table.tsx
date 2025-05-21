@@ -1,6 +1,6 @@
 "use client";
 
-import type { Grade } from '@/lib/types';
+import type { APIGrade } from '@/lib/api-grades'; // Import APIGrade
 import {
   Table,
   TableHeader,
@@ -10,24 +10,25 @@ import {
   TableCell,
   TableCaption,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
 interface GradesTableProps {
-  grades: Grade[];
+  grades: APIGrade[]; // Use APIGrade
 }
 
 export function GradesTable({ grades }: GradesTableProps) {
   if (!grades || grades.length === 0) {
-    return <p className="text-muted-foreground">No grades available at this time.</p>;
+    return <p className="text-muted-foreground">No grades available at this time, or there was an issue fetching them.</p>;
   }
 
-  const getGradeBadgeVariant = (grade: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
-    if (grade.startsWith('A') || grade.toLowerCase() === 'pass' || parseInt(grade) >= 90) return 'default';
-    if (grade.startsWith('B') || parseInt(grade) >= 80) return 'secondary';
-    if (grade.startsWith('C') || parseInt(grade) >= 70) return 'outline'; // Using outline for 'C' or average for neutrality
-    return 'destructive'; // For D, F, Fail or low scores
-  };
+  // Sort grades by date descending (most recent first) as the API might not guarantee order
+  // and the old mock API had sorting logic.
+  const sortedGrades = [...grades].sort((a, b) => {
+    // Ensure date objects are compared correctly
+    const dateA = new Date(a.date).getTime();
+    const dateB = new Date(b.date).getTime();
+    return dateB - dateA; // For descending order
+  });
 
 
   return (
@@ -35,22 +36,25 @@ export function GradesTable({ grades }: GradesTableProps) {
       <TableCaption>A list of your recent grades.</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[200px]">Subject</TableHead>
-          <TableHead>Assignment</TableHead>
+          <TableHead className="w-[200px]">Subject ID</TableHead>
           <TableHead className="w-[150px] text-right">Date</TableHead>
-          <TableHead className="w-[100px] text-right">Grade</TableHead>
+          <TableHead className="w-[100px] text-right">Score</TableHead>
+          <TableHead className="w-[150px] text-right">Last Updated</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {grades.map((grade) => (
-          <TableRow key={grade.id}>
-            <TableCell className="font-medium">{grade.subject}</TableCell>
-            <TableCell>{grade.assignment}</TableCell>
+        {sortedGrades.map((grade, index) => (
+          // Using index for key is okay if list is static or items have no stable IDs.
+          // A better key would be a unique ID from the data if available.
+          // For now, combining potentially unique fields with index for robustness.
+          <TableRow key={`${grade.subjectID}-${grade.date.toISOString()}-${index}`}>
+            <TableCell className="font-medium">{grade.subjectID}</TableCell>
             <TableCell className="text-right">
               {format(new Date(grade.date), 'MMM dd, yyyy')}
             </TableCell>
+            <TableCell className="text-right">{grade.score}</TableCell>
             <TableCell className="text-right">
-              <Badge variant={getGradeBadgeVariant(grade.grade)}>{grade.grade}</Badge>
+              {format(new Date(grade.lastUpdate), 'MMM dd, yyyy')}
             </TableCell>
           </TableRow>
         ))}
