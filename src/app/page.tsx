@@ -1,4 +1,5 @@
-import { fetchGrades } from '@/lib/mock-data';
+
+import { fetchGrades } from '@/lib/school-api'; // Updated import path
 import type { Grade } from '@/lib/types';
 import { GradesTable } from '@/components/grades/grades-table';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
