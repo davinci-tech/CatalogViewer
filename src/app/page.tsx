@@ -3,6 +3,8 @@ import { GradeAPI } from '@/lib/api-grades';
 import type { APIGrade } from '@/lib/api-grades';
 import { SubjectAPI } from '@/lib/api-subjects';
 import type { APISubject } from '@/lib/api-subjects';
+import { AbsentAPI } from '@/lib/api-absents'; // Added
+import type { APIAbsent } from '@/lib/api-absents'; // Added
 import { SubjectSummaryCard, type SubjectSummaryData } from '@/components/grades/subject-summary-card';
 import { BookOpenCheck } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
@@ -15,6 +17,7 @@ const formatSubjectName = (name: string): string => {
 export default async function HomePage() {
   const grades: APIGrade[] = await GradeAPI.fetchGrades();
   const subjects: APISubject[] = await SubjectAPI.fetchSubjects();
+  const absences: APIAbsent[] = await AbsentAPI.fetchAbsents(); // Added
 
   const subjectNameMap = new Map<string, string>();
   subjects.forEach(subject => {
@@ -31,24 +34,44 @@ export default async function HomePage() {
     }
   });
 
+  const absencesBySubject = new Map<string, APIAbsent[]>(); // Added
+  absences.forEach(absence => { // Added
+    const existing = absencesBySubject.get(absence.subjectID); // Added
+    if (existing) { // Added
+      existing.push(absence); // Added
+    } else { // Added
+      absencesBySubject.set(absence.subjectID, [absence]); // Added
+    } // Added
+  }); // Added
+
   const subjectSummaries: SubjectSummaryData[] = [];
-  for (const [subjectID, subjectGrades] of gradesBySubject.entries()) {
+  // Use a Set of all subject IDs from grades and absences to ensure all subjects are processed
+  const allSubjectIDs = new Set([...gradesBySubject.keys(), ...absencesBySubject.keys()]);
+
+  for (const subjectID of allSubjectIDs) {
     const rawSubjectName = subjectNameMap.get(subjectID) || `ID: ${subjectID}`;
     const formattedSubName = formatSubjectName(rawSubjectName);
+    
+    const subjectGrades = gradesBySubject.get(subjectID) || [];
+    const subjectAbsences = absencesBySubject.get(subjectID) || []; // Added
 
-    if (subjectGrades.length === 0) continue;
+    if (subjectGrades.length === 0 && subjectAbsences.length === 0) continue; // Skip if no grades and no absences
 
     // Sort grades by date descending for consistent processing
     subjectGrades.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-    const sumOfScores = subjectGrades.reduce((sum, grade) => sum + grade.score, 0);
-    const averageScore = Math.ceil(sumOfScores / subjectGrades.length);
+    let averageScore = 0;
+    if (subjectGrades.length > 0) {
+        const sumOfScores = subjectGrades.reduce((sum, grade) => sum + grade.score, 0);
+        averageScore = Math.ceil(sumOfScores / subjectGrades.length);
+    }
     
     subjectSummaries.push({
       subjectID,
       subjectName: formattedSubName,
-      averageScore,
-      grades: subjectGrades, 
+      averageScore: subjectGrades.length > 0 ? averageScore : 0, // Handle case with no grades
+      grades: subjectGrades,
+      absences: subjectAbsences, // Added
     });
   }
 
@@ -83,7 +106,7 @@ export default async function HomePage() {
         <div className="flex flex-col justify-center items-center h-64 space-y-4">
            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-clipboard-list text-muted-foreground/50"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
           <p className="text-xl text-muted-foreground text-center">
-            No grade summaries available at this time.
+            No grade or absence summaries available at this time.
           </p>
           <p className="text-sm text-muted-foreground text-center">Please check back later or contact support if the issue persists.</p>
         </div>

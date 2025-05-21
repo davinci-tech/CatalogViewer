@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from '@/hooks/use-mobile';
 import React, { useEffect, useState } from 'react';
 import type { APIGrade } from '@/lib/api-grades';
+import type { APIAbsent } from '@/lib/api-absents'; // Added
 import { SubjectDetailDrawerContent } from './subject-detail-drawer-content';
 
 export interface SubjectSummaryData {
@@ -14,6 +15,7 @@ export interface SubjectSummaryData {
   subjectName: string; // Already formatted
   averageScore: number;
   grades: APIGrade[];
+  absences: APIAbsent[]; // Added
 }
 
 interface SubjectSummaryCardProps {
@@ -39,11 +41,11 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-grow flex items-center justify-center py-4">
-        <p className="text-3xl">{summary.averageScore}</p>
+        <p className="text-3xl">{summary.grades.length > 0 ? summary.averageScore : '-'}</p>
       </CardContent>
       <CardFooter className="text-xs text-muted-foreground pt-2 pb-4 flex justify-center items-center">
         <span className="whitespace-nowrap text-center w-full">
-          {summary.grades.map(g => g.score).join(' ')}
+          {summary.grades.length > 0 ? summary.grades.map(g => g.score).join(' ') : 'No grades'}
         </span>
       </CardFooter>
     </Card>
@@ -63,11 +65,11 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex-grow flex items-center justify-center py-4">
-          <p className="text-3xl">{summary.averageScore}</p>
+          <p className="text-3xl">{summary.grades.length > 0 ? summary.averageScore : '-'}</p>
         </CardContent>
         <CardFooter className="text-xs text-muted-foreground pt-2 pb-4 flex justify-center items-center">
-          <span className="whitespace-nowrap text-center w-full">
-            {summary.grades.map(g => g.score).join(' ')}
+           <span className="whitespace-nowrap text-center w-full">
+            {summary.grades.length > 0 ? summary.grades.map(g => g.score).join(' ') : 'No grades'}
           </span>
         </CardFooter>
       </Card>
@@ -84,7 +86,7 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
           {cardInteractiveContent}
         </DrawerTrigger>
         <DrawerContent>
-          <SubjectDetailDrawerContent subjectName={summary.subjectName} grades={summary.grades} />
+          <SubjectDetailDrawerContent subjectName={summary.subjectName} grades={summary.grades} absences={summary.absences} />
         </DrawerContent>
       </Drawer>
     );
@@ -95,7 +97,7 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
           {cardInteractiveContent}
         </SheetTrigger>
         <SheetContent side="right" className="md:w-1/2 md:max-w-none"> 
-          <SubjectDetailDrawerContent subjectName={summary.subjectName} grades={summary.grades} />
+          <SubjectDetailDrawerContent subjectName={summary.subjectName} grades={summary.grades} absences={summary.absences} />
         </SheetContent>
       </Sheet>
     );
