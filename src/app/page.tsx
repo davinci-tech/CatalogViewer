@@ -8,11 +8,12 @@ import type { APIAbsent } from '@/lib/api-absents';
 import { SubjectSummaryCard, type SubjectSummaryData as CardSubjectSummaryData } from '@/components/grades/subject-summary-card';
 import { BookOpenCheck } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
+import { PageRefreshControl } from '@/components/page-refresh-control'; // Added import
 
 // Local interface for page data aggregation, distinct from the one in SubjectSummaryCard
 interface PageSubjectSummaryData extends CardSubjectSummaryData {
   unmotivatedAbsencesCount: number;
-  hasCurrentMonthUnmotivatedAbsences: boolean; // New field
+  hasCurrentMonthUnmotivatedAbsences: boolean;
 }
 
 const formatSubjectName = (name: string): string => {
@@ -71,7 +72,7 @@ export default async function HomePage() {
     let averageScore = 0;
     if (subjectGrades.length > 0) {
         const sumOfScores = subjectGrades.reduce((sum, grade) => sum + grade.score, 0);
-        averageScore = Math.round(sumOfScores / subjectGrades.length);
+        averageScore = Math.round(sumOfScores / subjectGrades.length); // Changed to Math.round
     }
 
     const unmotivatedAbsences = subjectAbsences.filter(absence => !absence.motivated);
@@ -103,8 +104,9 @@ export default async function HomePage() {
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end items-center mb-4 space-x-2"> {/* Wrapper for top-right controls */}
         <ModeToggle />
+        <PageRefreshControl /> {/* Added PageRefreshControl */}
       </div>
       <header className="mb-10 text-center">
         <div className="inline-flex items-center space-x-3 mb-3">
