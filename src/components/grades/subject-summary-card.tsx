@@ -49,7 +49,7 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
           {summary.grades.length > 0 ? summary.grades.map(g => g.score).join(' ') : 'No grades'}
         </span>
         <span className="whitespace-nowrap">
-          {`${summary.unmotivatedAbsencesCount} unmotivated`}
+          {summary.unmotivatedAbsencesCount}
         </span>
       </CardFooter>
     </Card>
@@ -75,7 +75,7 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
             {summary.grades.length > 0 ? summary.grades.map(g => g.score).join(' ') : 'No grades'}
           </span>
           <span className="whitespace-nowrap">
-            {`${summary.unmotivatedAbsencesCount} unmotivated`}
+            {summary.unmotivatedAbsencesCount}
           </span>
         </CardFooter>
       </Card>
