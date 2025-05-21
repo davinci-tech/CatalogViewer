@@ -16,6 +16,7 @@ export interface SubjectSummaryData {
   averageScore: number;
   grades: APIGrade[];
   absences: APIAbsent[];
+  unmotivatedAbsencesCount: number; // Added field
 }
 
 interface SubjectSummaryCardProps {
@@ -43,15 +44,19 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
       <CardContent className="flex-grow flex items-center justify-center py-4">
         <p className="text-3xl">{summary.grades.length > 0 ? summary.averageScore : '-'}</p>
       </CardContent>
-      <CardFooter className="text-xs text-muted-foreground pt-2 pb-4 flex justify-center items-center">
-        <span className="whitespace-nowrap text-center w-full">
+      <CardFooter className="text-xs text-muted-foreground pt-2 pb-4 flex justify-between items-center">
+        <span className="whitespace-nowrap">
           {summary.grades.length > 0 ? summary.grades.map(g => g.score).join(' ') : 'No grades'}
+        </span>
+        <span className="whitespace-nowrap">
+          {`${summary.unmotivatedAbsencesCount} unmotivated`}
         </span>
       </CardFooter>
     </Card>
   );
 
   if (!mounted) {
+    // Fallback for SSR and initial client render to avoid hydration mismatch
     return (
       <Card className="shadow-md flex flex-col justify-between h-full">
         <CardHeader className="pb-2 pt-4">
@@ -65,9 +70,12 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
         <CardContent className="flex-grow flex items-center justify-center py-4">
           <p className="text-3xl">{summary.grades.length > 0 ? summary.averageScore : '-'}</p>
         </CardContent>
-        <CardFooter className="text-xs text-muted-foreground pt-2 pb-4 flex justify-center items-center">
-           <span className="whitespace-nowrap text-center w-full">
+        <CardFooter className="text-xs text-muted-foreground pt-2 pb-4 flex justify-between items-center">
+           <span className="whitespace-nowrap">
             {summary.grades.length > 0 ? summary.grades.map(g => g.score).join(' ') : 'No grades'}
+          </span>
+          <span className="whitespace-nowrap">
+            {`${summary.unmotivatedAbsencesCount} unmotivated`}
           </span>
         </CardFooter>
       </Card>
@@ -110,5 +118,3 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
     );
   }
 }
-
-    

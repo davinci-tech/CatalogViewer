@@ -3,11 +3,16 @@ import { GradeAPI } from '@/lib/api-grades';
 import type { APIGrade } from '@/lib/api-grades';
 import { SubjectAPI } from '@/lib/api-subjects';
 import type { APISubject } from '@/lib/api-subjects';
-import { AbsentAPI } from '@/lib/api-absents'; // Added
-import type { APIAbsent } from '@/lib/api-absents'; // Added
-import { SubjectSummaryCard, type SubjectSummaryData } from '@/components/grades/subject-summary-card';
+import { AbsentAPI } from '@/lib/api-absents';
+import type { APIAbsent } from '@/lib/api-absents';
+import { SubjectSummaryCard, type SubjectSummaryData as CardSubjectSummaryData } from '@/components/grades/subject-summary-card';
 import { BookOpenCheck } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
+
+// Local interface for page data aggregation, distinct from the one in SubjectSummaryCard
+interface PageSubjectSummaryData extends CardSubjectSummaryData {
+  unmotivatedAbsencesCount: number;
+}
 
 const formatSubjectName = (name: string): string => {
   const regex = /^\d{2}\.\s*/;
@@ -17,7 +22,7 @@ const formatSubjectName = (name: string): string => {
 export default async function HomePage() {
   const grades: APIGrade[] = await GradeAPI.fetchGrades();
   const subjects: APISubject[] = await SubjectAPI.fetchSubjects();
-  const absences: APIAbsent[] = await AbsentAPI.fetchAbsents(); // Added
+  const absences: APIAbsent[] = await AbsentAPI.fetchAbsents();
 
   const subjectNameMap = new Map<string, string>();
   subjects.forEach(subject => {
@@ -34,18 +39,17 @@ export default async function HomePage() {
     }
   });
 
-  const absencesBySubject = new Map<string, APIAbsent[]>(); // Added
-  absences.forEach(absence => { // Added
-    const existing = absencesBySubject.get(absence.subjectID); // Added
-    if (existing) { // Added
-      existing.push(absence); // Added
-    } else { // Added
-      absencesBySubject.set(absence.subjectID, [absence]); // Added
-    } // Added
-  }); // Added
+  const absencesBySubject = new Map<string, APIAbsent[]>();
+  absences.forEach(absence => {
+    const existing = absencesBySubject.get(absence.subjectID);
+    if (existing) {
+      existing.push(absence);
+    } else {
+      absencesBySubject.set(absence.subjectID, [absence]);
+    }
+  });
 
-  const subjectSummaries: SubjectSummaryData[] = [];
-  // Use a Set of all subject IDs from grades and absences to ensure all subjects are processed
+  const subjectSummaries: PageSubjectSummaryData[] = [];
   const allSubjectIDs = new Set([...gradesBySubject.keys(), ...absencesBySubject.keys()]);
 
   for (const subjectID of allSubjectIDs) {
@@ -53,11 +57,10 @@ export default async function HomePage() {
     const formattedSubName = formatSubjectName(rawSubjectName);
     
     const subjectGrades = gradesBySubject.get(subjectID) || [];
-    const subjectAbsences = absencesBySubject.get(subjectID) || []; // Added
+    const subjectAbsences = absencesBySubject.get(subjectID) || [];
 
-    if (subjectGrades.length === 0 && subjectAbsences.length === 0) continue; // Skip if no grades and no absences
+    if (subjectGrades.length === 0 && subjectAbsences.length === 0) continue;
 
-    // Sort grades by date descending for consistent processing
     subjectGrades.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     let averageScore = 0;
@@ -65,17 +68,19 @@ export default async function HomePage() {
         const sumOfScores = subjectGrades.reduce((sum, grade) => sum + grade.score, 0);
         averageScore = Math.ceil(sumOfScores / subjectGrades.length);
     }
+
+    const unmotivatedAbsencesCount = subjectAbsences.filter(absence => !absence.motivated).length;
     
     subjectSummaries.push({
       subjectID,
       subjectName: formattedSubName,
-      averageScore: subjectGrades.length > 0 ? averageScore : 0, // Handle case with no grades
+      averageScore: subjectGrades.length > 0 ? averageScore : 0,
       grades: subjectGrades,
-      absences: subjectAbsences, // Added
+      absences: subjectAbsences,
+      unmotivatedAbsencesCount: unmotivatedAbsencesCount,
     });
   }
 
-  // Sort summaries alphabetically by subject name
   subjectSummaries.sort((a, b) => a.subjectName.localeCompare(b.subjectName));
 
   return (
@@ -98,7 +103,7 @@ export default async function HomePage() {
           {subjectSummaries.map((summary) => (
             <SubjectSummaryCard
               key={summary.subjectID}
-              summary={summary}
+              summary={summary} // summary now includes unmotivatedAbsencesCount
             />
           ))}
         </div>
