@@ -37,19 +37,18 @@ export default async function HomePage() {
 
     if (subjectGrades.length === 0) continue;
 
-    // Sort grades by date descending before processing for scores list, for consistency
-    // although the footer only shows scores, this could be useful if dates were added back.
+    // Sort grades by date descending for consistent processing
     subjectGrades.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     const sumOfScores = subjectGrades.reduce((sum, grade) => sum + grade.score, 0);
     const averageScore = Math.ceil(sumOfScores / subjectGrades.length);
-    const allScores = subjectGrades.map(grade => grade.score);
+    // const allScores = subjectGrades.map(grade => grade.score); // Replaced by full grades array
 
     subjectSummaries.push({
       subjectID,
       subjectName: formattedSubName,
       averageScore,
-      allScores,
+      grades: subjectGrades, // Pass the full grade objects
     });
   }
 
@@ -64,7 +63,7 @@ export default async function HomePage() {
           <h1 className="text-3xl sm:text-4xl font-bold">CatalogViewer</h1>
         </div>
         <p className="text-md sm:text-lg text-muted-foreground">
-          Welcome! View your academic performance summary by subject.
+          Welcome! View your academic performance summary by subject. Click on a card for details.
         </p>
       </header>
 
