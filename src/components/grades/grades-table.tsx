@@ -15,7 +15,7 @@ import { ClientDate } from '@/components/ui/client-date';
 
 interface GradesTableProps {
   grades: APIGrade[];
-  subjectNameMap: Map<string, string>; // New prop for subject names
+  subjectNameMap: Map<string, string>;
 }
 
 export function GradesTable({ grades, subjectNameMap }: GradesTableProps) {
@@ -26,16 +26,20 @@ export function GradesTable({ grades, subjectNameMap }: GradesTableProps) {
   const sortedGrades = [...grades].sort((a, b) => {
     const dateA = new Date(a.date).getTime();
     const dateB = new Date(b.date).getTime();
-    return dateB - dateA;
+    return dateB - dateA; // Sort by date descending (most recent first)
   });
 
+  const formatSubjectName = (name: string): string => {
+    const regex = /^\d{2}\.\s*/;
+    return name.replace(regex, '').trim();
+  };
 
   return (
     <Table>
       <TableCaption>A list of your recent grades.</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[200px]">Subject</TableHead> {/* Changed from Subject ID */}
+          <TableHead className="w-[200px]">Subject</TableHead>
           <TableHead className="w-[150px] text-right">Date</TableHead>
           <TableHead className="w-[100px] text-right">Score</TableHead>
           <TableHead className="w-[150px] text-right">Last Updated</TableHead>
@@ -45,7 +49,7 @@ export function GradesTable({ grades, subjectNameMap }: GradesTableProps) {
         {sortedGrades.map((grade, index) => (
           <TableRow key={`${grade.subjectID}-${new Date(grade.date).toISOString()}-${index}`}>
             <TableCell className="font-medium">
-              {subjectNameMap.get(grade.subjectID) || grade.subjectID} {/* Display name or ID if not found */}
+              {formatSubjectName(subjectNameMap.get(grade.subjectID) || grade.subjectID)}
             </TableCell>
             <TableCell className="text-right">
               <ClientDate dateString={grade.date} />
