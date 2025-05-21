@@ -9,6 +9,7 @@ import React, { useEffect, useState } from 'react';
 import type { APIGrade } from '@/lib/api-grades';
 import type { APIAbsent } from '@/lib/api-absents';
 import { SubjectDetailDrawerContent } from './subject-detail-drawer-content';
+import { cn } from '@/lib/utils'; // Import cn
 
 export interface SubjectSummaryData {
   subjectID: string;
@@ -16,7 +17,8 @@ export interface SubjectSummaryData {
   averageScore: number;
   grades: APIGrade[];
   absences: APIAbsent[];
-  unmotivatedAbsencesCount: number; // Added field
+  unmotivatedAbsencesCount: number;
+  hasCurrentMonthUnmotivatedAbsences: boolean; // Added field
 }
 
 interface SubjectSummaryCardProps {
@@ -48,7 +50,10 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
         <span className="whitespace-nowrap">
           {summary.grades.length > 0 ? summary.grades.map(g => g.score).join(' ') : 'No grades'}
         </span>
-        <span className="whitespace-nowrap">
+        <span className={cn(
+          "whitespace-nowrap",
+          summary.hasCurrentMonthUnmotivatedAbsences && summary.unmotivatedAbsencesCount > 0 && "text-destructive"
+        )}>
           {summary.unmotivatedAbsencesCount}
         </span>
       </CardFooter>
@@ -74,7 +79,10 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
            <span className="whitespace-nowrap">
             {summary.grades.length > 0 ? summary.grades.map(g => g.score).join(' ') : 'No grades'}
           </span>
-          <span className="whitespace-nowrap">
+          <span className={cn(
+            "whitespace-nowrap",
+             summary.hasCurrentMonthUnmotivatedAbsences && summary.unmotivatedAbsencesCount > 0 && "text-destructive"
+          )}>
             {summary.unmotivatedAbsencesCount}
           </span>
         </CardFooter>

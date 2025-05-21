@@ -12,6 +12,7 @@ import { ModeToggle } from '@/components/mode-toggle';
 // Local interface for page data aggregation, distinct from the one in SubjectSummaryCard
 interface PageSubjectSummaryData extends CardSubjectSummaryData {
   unmotivatedAbsencesCount: number;
+  hasCurrentMonthUnmotivatedAbsences: boolean; // New field
 }
 
 const formatSubjectName = (name: string): string => {
@@ -52,6 +53,10 @@ export default async function HomePage() {
   const subjectSummaries: PageSubjectSummaryData[] = [];
   const allSubjectIDs = new Set([...gradesBySubject.keys(), ...absencesBySubject.keys()]);
 
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth();
+
   for (const subjectID of allSubjectIDs) {
     const rawSubjectName = subjectNameMap.get(subjectID) || `ID: ${subjectID}`;
     const formattedSubName = formatSubjectName(rawSubjectName);
@@ -66,10 +71,22 @@ export default async function HomePage() {
     let averageScore = 0;
     if (subjectGrades.length > 0) {
         const sumOfScores = subjectGrades.reduce((sum, grade) => sum + grade.score, 0);
-        averageScore = Math.round(sumOfScores / subjectGrades.length); // Changed from Math.ceil to Math.round
+        averageScore = Math.round(sumOfScores / subjectGrades.length);
     }
 
-    const unmotivatedAbsencesCount = subjectAbsences.filter(absence => !absence.motivated).length;
+    const unmotivatedAbsences = subjectAbsences.filter(absence => !absence.motivated);
+    const unmotivatedAbsencesCount = unmotivatedAbsences.length;
+    
+    let hasCurrentMonthUnmotivatedAbsences = false;
+    if (unmotivatedAbsencesCount > 0) {
+      for (const absence of unmotivatedAbsences) {
+        const absenceDate = new Date(absence.date);
+        if (absenceDate.getFullYear() === currentYear && absenceDate.getMonth() === currentMonth) {
+          hasCurrentMonthUnmotivatedAbsences = true;
+          break;
+        }
+      }
+    }
     
     subjectSummaries.push({
       subjectID,
@@ -78,6 +95,7 @@ export default async function HomePage() {
       grades: subjectGrades,
       absences: subjectAbsences,
       unmotivatedAbsencesCount: unmotivatedAbsencesCount,
+      hasCurrentMonthUnmotivatedAbsences: hasCurrentMonthUnmotivatedAbsences,
     });
   }
 
@@ -103,7 +121,7 @@ export default async function HomePage() {
           {subjectSummaries.map((summary) => (
             <SubjectSummaryCard
               key={summary.subjectID}
-              summary={summary} // summary now includes unmotivatedAbsencesCount
+              summary={summary}
             />
           ))}
         </div>
