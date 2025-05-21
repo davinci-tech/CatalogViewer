@@ -33,3 +33,4 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
     </Card>
   );
 }
+
