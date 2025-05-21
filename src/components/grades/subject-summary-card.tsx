@@ -18,7 +18,11 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
   return (
     <Card className="shadow-md flex flex-col justify-between h-full hover:shadow-lg transition-shadow duration-200">
       <CardHeader className="pb-2 pt-4">
-        <CardTitle className="text-xs font-bold truncate text-center" title={summary.subjectName}>
+        <CardTitle 
+          className="text-xs font-bold text-center break-words" 
+          title={summary.subjectName}
+          style={{ minHeight: '2.5em' }} // Reserve space for up to two lines, adjust as needed
+        >
           {summary.subjectName}
         </CardTitle>
       </CardHeader>
@@ -33,4 +37,3 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
     </Card>
   );
 }
-
