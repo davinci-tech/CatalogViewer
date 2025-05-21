@@ -5,8 +5,6 @@ import * as React from 'react';
 import type { APIGrade } from '@/lib/api-grades';
 import type { APIAbsent } from '@/lib/api-absents';
 import {
-  DrawerFooter,
-  DrawerClose,
   DrawerHeader, // Added for accessibility
   DrawerTitle,   // Added for accessibility
 } from "@/components/ui/drawer";
@@ -22,7 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { ClientDate } from '@/components/ui/client-date';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -46,8 +43,6 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences, isSh
   const [absenceSortColumn, setAbsenceSortColumn] = React.useState<SortableAbsenceColumn>('date');
   const [absenceSortDirection, setAbsenceSortDirection] = React.useState<'asc' | 'desc'>('desc');
   
-  const closeButtonRef = React.useRef<HTMLButtonElement>(null);
-
   const handleGradeSort = (column: SortableGradeColumn) => {
     if (gradeSortColumn === column) {
       setGradeSortDirection(prevDirection => (prevDirection === 'asc' ? 'desc' : 'asc'));
@@ -105,12 +100,6 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences, isSh
     setGradeSortDirection('desc');
     setAbsenceSortColumn('date'); 
     setAbsenceSortDirection('desc'); 
-
-    const timer = setTimeout(() => {
-      closeButtonRef.current?.focus({ preventScroll: true });
-    }, 150);
-
-    return () => clearTimeout(timer);
   }, [grades, absences, subjectName]);
 
   const SortableGradeHeader = ({ column, label, currentSortColumn, currentSortDirection, handleSort, className }: { column: SortableGradeColumn, label: string, currentSortColumn: SortableGradeColumn, currentSortDirection: 'asc' | 'desc', handleSort: (col: SortableGradeColumn) => void, className?: string }) => (
@@ -231,13 +220,7 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences, isSh
           )}
         </ScrollArea>
       </div>
-      <DrawerFooter className="pt-2 border-t flex-shrink-0">
-        <DrawerClose asChild>
-          <Button variant="outline" ref={closeButtonRef}>Close</Button>
-        </DrawerClose>
-      </DrawerFooter>
+      {/* Footer has been removed as per user request */}
     </div>
   );
 }
-
-    
