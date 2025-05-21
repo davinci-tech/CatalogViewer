@@ -76,9 +76,10 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
   }
 
   // At this point, 'mounted' is true, and 'isMobile' is determined (true or false).
-  // Desktop (!isMobile): use Drawer
-  // Mobile (isMobile): use Sheet
-  if (!isMobile) { 
+  // isMobile is true if screen width < 768px.
+  // Desktop: !isMobile (screen width >= 768px) -> use Drawer
+  // Mobile: isMobile (screen width < 768px) -> use Sheet
+  if (!isMobile) { // Desktop
     return (
       <Drawer>
         <DrawerTrigger asChild>
@@ -89,13 +90,13 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
         </DrawerContent>
       </Drawer>
     );
-  } else { 
+  } else { // Mobile
     return (
       <Sheet>
         <SheetTrigger asChild>
           {cardInteractiveContent}
         </SheetTrigger>
-        <SheetContent side="right"> {/* Defaulting to "right" for Sheet, can be "bottom" etc. */}
+        <SheetContent side="right"> 
           <SubjectDetailDrawerContent subjectName={summary.subjectName} grades={summary.grades} />
         </SheetContent>
       </Sheet>

@@ -33,15 +33,15 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
   }, [grades]);
 
   return (
-    <div className="mx-auto w-full max-w-lg"> {/* Added wrapper for content sizing */}
-      <DrawerHeader className="text-left"> {/* Adjusted text alignment for header */}
+    <div className="mx-auto w-full max-w-2xl"> {/* Changed from max-w-lg to max-w-2xl for wider desktop drawer */}
+      <DrawerHeader className="text-left">
         <DrawerTitle>{subjectName} - Grade Details</DrawerTitle>
         <DrawerDescription>
           A detailed list of your grades for {subjectName}, sorted by date (newest first).
         </DrawerDescription>
       </DrawerHeader>
-      <div className="p-4 pb-0"> {/* Added padding for the main content area */}
-        <ScrollArea className="h-[calc(100vh-250px)] sm:h-[400px]"> {/* Adjusted height based on typical drawer usage */}
+      <div className="p-4 pb-0">
+        <ScrollArea className="h-[calc(100vh-250px)] sm:h-[400px]">
           {sortedGrades.length > 0 ? (
             <Table>
               <TableHeader>
