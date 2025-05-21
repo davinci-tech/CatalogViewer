@@ -9,7 +9,7 @@ import {
   DrawerDescription,
   DrawerFooter,
   DrawerClose
-} from "@/components/ui/drawer"; // Changed from sheet
+} from "@/components/ui/drawer";
 import {
   Table,
   TableBody,
@@ -33,15 +33,15 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
   }, [grades]);
 
   return (
-    <div className="mx-auto w-full max-w-2xl"> {/* Changed from max-w-lg to max-w-2xl for wider desktop drawer */}
+    <div className="flex flex-col h-full"> {/* Changed for flexible height */}
       <DrawerHeader className="text-left">
         <DrawerTitle>{subjectName} - Grade Details</DrawerTitle>
         <DrawerDescription>
           A detailed list of your grades for {subjectName}, sorted by date (newest first).
         </DrawerDescription>
       </DrawerHeader>
-      <div className="p-4 pb-0">
-        <ScrollArea className="h-[calc(100vh-250px)] sm:h-[400px]">
+      <div className="p-4 flex-grow overflow-hidden"> {/* Changed for scroll area expansion */}
+        <ScrollArea className="h-full"> {/* ScrollArea takes full height of parent */}
           {sortedGrades.length > 0 ? (
             <Table>
               <TableHeader>

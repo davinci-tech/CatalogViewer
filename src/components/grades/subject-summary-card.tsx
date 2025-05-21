@@ -13,7 +13,7 @@ export interface SubjectSummaryData {
   subjectID: string;
   subjectName: string; // Already formatted
   averageScore: number;
-  grades: APIGrade[]; // Changed from allScores
+  grades: APIGrade[];
 }
 
 interface SubjectSummaryCardProps {
@@ -28,7 +28,6 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
     setMounted(true);
   }, []);
 
-  // This is the visual content of the card, used as a trigger
   const cardInteractiveContent = (
     <Card className="shadow-md flex flex-col justify-between h-full hover:shadow-lg transition-shadow duration-200 cursor-pointer">
       <CardHeader className="pb-2 pt-4">
@@ -51,8 +50,6 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
   );
 
   if (!mounted) {
-    // Render a non-interactive version of the card during SSR and initial client render
-    // to ensure server and client markup match before dynamic changes.
     return (
       <Card className="shadow-md flex flex-col justify-between h-full">
         <CardHeader className="pb-2 pt-4">
@@ -75,11 +72,10 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
     );
   }
 
-  // At this point, 'mounted' is true, and 'isMobile' is determined (true or false).
-  // isMobile is true if screen width < 768px.
-  // Desktop: !isMobile (screen width >= 768px) -> use Drawer
-  // Mobile: isMobile (screen width < 768px) -> use Sheet
-  if (!isMobile) { // Desktop
+  // At this point, 'mounted' is true, and 'isMobile' is determined.
+  // Mobile: isMobile (screen width < 768px) -> use Drawer (bottom sheet)
+  // Desktop: !isMobile (screen width >= 768px) -> use Sheet (side panel, half screen)
+  if (isMobile) { // Mobile
     return (
       <Drawer>
         <DrawerTrigger asChild>
@@ -90,13 +86,13 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
         </DrawerContent>
       </Drawer>
     );
-  } else { // Mobile
+  } else { // Desktop
     return (
       <Sheet>
         <SheetTrigger asChild>
           {cardInteractiveContent}
         </SheetTrigger>
-        <SheetContent side="right"> 
+        <SheetContent side="right" className="md:w-1/2"> 
           <SubjectDetailDrawerContent subjectName={summary.subjectName} grades={summary.grades} />
         </SheetContent>
       </Sheet>
