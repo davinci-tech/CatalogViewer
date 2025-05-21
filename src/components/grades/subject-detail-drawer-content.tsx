@@ -23,6 +23,7 @@ import { ClientDate } from '@/components/ui/client-date';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowUp, ArrowDown } from 'lucide-react';
+import { cn } from "@/lib/utils"; // Added import
 
 interface SubjectDetailDrawerContentProps {
   subjectName: string;
@@ -68,7 +69,7 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
     setSortDirection('desc');
   }, [grades]);
 
-  const getRowId = (grade: APIGrade) => grade.id; // Use stable grade ID
+  const getRowId = (grade: APIGrade) => grade.id;
 
   const handleSelectAll = (checked: boolean | 'indeterminate') => {
     if (checked === true) {
