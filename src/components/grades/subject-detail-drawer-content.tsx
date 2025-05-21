@@ -7,7 +7,7 @@ import type { APIAbsent } from '@/lib/api-absents';
 import {
   DrawerFooter,
   DrawerClose
-} from "@/components/ui/drawer"; // Removed DrawerHeader, DrawerTitle, DrawerDescription
+} from "@/components/ui/drawer";
 import {
   Table,
   TableBody,
@@ -83,7 +83,7 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
         comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
       } else if (absenceSortColumn === 'motivated') {
         if (a.motivated === b.motivated) comparison = 0;
-        else if (a.motivated) comparison = -1;
+        else if (a.motivated) comparison = -1; // true (motivated) comes first in ascending
         else comparison = 1;
       } else if (absenceSortColumn === 'lastUpdate') {
         comparison = new Date(a.lastUpdate).getTime() - new Date(b.lastUpdate).getTime();
@@ -104,7 +104,7 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [grades, absences, subjectName]); // Added subjectName as dependency for re-focusing header logic
+  }, [grades, absences, subjectName]);
 
   const SortableGradeHeader = ({ column, label, currentSortColumn, currentSortDirection, handleSort, className }: { column: SortableGradeColumn, label: string, currentSortColumn: SortableGradeColumn, currentSortDirection: 'asc' | 'desc', handleSort: (col: SortableGradeColumn) => void, className?: string }) => (
     <TableHead className={cn("cursor-pointer", className)} onClick={() => handleSort(column)}>
@@ -131,18 +131,11 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
 
   return (
     <div className="flex flex-col h-full">
-      {/* DrawerHeader removed */}
-      <div className="p-4 flex-grow overflow-hidden"> {/* Added pt-0 to compensate for removed header padding */}
-        <div className="sticky top-0 bg-background py-3 z-10 -mx-4 px-4 border-b mb-3"> {/* Header-like bar */}
-            <h2 className="text-xl font-semibold">{subjectName} - Details</h2>
-            <p className="text-sm text-muted-foreground">
-              Grade and absence information.
-            </p>
-        </div>
+      <div className="p-4 flex-grow overflow-hidden">
         <ScrollArea className="h-full">
           <h3 className="text-lg font-semibold mb-1 mt-0">Grade Details</h3>
           <p className="text-sm text-muted-foreground mb-3">
-            A detailed list of your grades ({grades.length} in total). Click column headers to sort.
+            A detailed list of your grades ({grades.length} in total) for {subjectName}. Click column headers to sort.
           </p>
           {sortedGrades.length > 0 ? (
             <Table>
@@ -180,7 +173,7 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
 
           <h3 className="text-lg font-semibold mb-1">Absence Details</h3>
            <p className="text-sm text-muted-foreground mb-3">
-            A detailed list of your absences ({absences.length} in total). Click column headers to sort.
+            A detailed list of your absences ({absences.length} in total) for {subjectName}. Click column headers to sort.
           </p>
           {sortedAbsences.length > 0 ? ( 
             <Table>
