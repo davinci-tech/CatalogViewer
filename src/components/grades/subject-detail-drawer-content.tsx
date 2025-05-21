@@ -4,10 +4,12 @@
 import * as React from 'react';
 import type { APIGrade } from '@/lib/api-grades';
 import {
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerClose
+} from "@/components/ui/drawer"; // Changed from sheet
 import {
   Table,
   TableBody,
@@ -16,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { ClientDate } from '@/components/ui/client-date';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -30,15 +33,15 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
   }, [grades]);
 
   return (
-    <>
-      <SheetHeader className="p-6 pb-4 border-b">
-        <SheetTitle>{subjectName} - Grade Details</SheetTitle>
-        <SheetDescription>
+    <div className="mx-auto w-full max-w-lg"> {/* Added wrapper for content sizing */}
+      <DrawerHeader className="text-left"> {/* Adjusted text alignment for header */}
+        <DrawerTitle>{subjectName} - Grade Details</DrawerTitle>
+        <DrawerDescription>
           A detailed list of your grades for {subjectName}, sorted by date (newest first).
-        </SheetDescription>
-      </SheetHeader>
-      <ScrollArea className="h-[calc(100vh-100px)]"> {/* Adjusted height for header + padding */}
-        <div className="p-6">
+        </DrawerDescription>
+      </DrawerHeader>
+      <div className="p-4 pb-0"> {/* Added padding for the main content area */}
+        <ScrollArea className="h-[calc(100vh-250px)] sm:h-[400px]"> {/* Adjusted height based on typical drawer usage */}
           {sortedGrades.length > 0 ? (
             <Table>
               <TableHeader>
@@ -71,8 +74,13 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
               <p className="text-xs text-muted-foreground/80 mt-1">Check back later or if you believe this is an error, contact support.</p>
             </div>
           )}
-        </div>
-      </ScrollArea>
-    </>
+        </ScrollArea>
+      </div>
+      <DrawerFooter>
+        <DrawerClose asChild>
+          <Button variant="outline">Close</Button>
+        </DrawerClose>
+      </DrawerFooter>
+    </div>
   );
 }

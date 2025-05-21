@@ -3,10 +3,10 @@
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/components/ui/drawer"; // Changed from sheet
 import type { APIGrade } from '@/lib/api-grades';
 import { SubjectDetailDrawerContent } from './subject-detail-drawer-content';
 
@@ -23,8 +23,8 @@ interface SubjectSummaryCardProps {
 
 export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
   return (
-    <Sheet>
-      <SheetTrigger asChild>
+    <Drawer>
+      <DrawerTrigger asChild>
         <Card className="shadow-md flex flex-col justify-between h-full hover:shadow-lg transition-shadow duration-200 cursor-pointer">
           <CardHeader className="pb-2 pt-4">
             <CardTitle
@@ -43,10 +43,11 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
             </span>
           </CardFooter>
         </Card>
-      </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:max-w-md md:max-w-lg p-0">
+      </DrawerTrigger>
+      <DrawerContent>
+        {/* SubjectDetailDrawerContent will now manage its own max-width and internal structure */}
         <SubjectDetailDrawerContent subjectName={summary.subjectName} grades={summary.grades} />
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }
