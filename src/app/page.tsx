@@ -66,7 +66,7 @@ export default async function HomePage() {
     let averageScore = 0;
     if (subjectGrades.length > 0) {
         const sumOfScores = subjectGrades.reduce((sum, grade) => sum + grade.score, 0);
-        averageScore = Math.ceil(sumOfScores / subjectGrades.length);
+        averageScore = Math.round(sumOfScores / subjectGrades.length); // Changed from Math.ceil to Math.round
     }
 
     const unmotivatedAbsencesCount = subjectAbsences.filter(absence => !absence.motivated).length;
