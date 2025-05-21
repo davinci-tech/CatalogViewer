@@ -19,18 +19,18 @@ export function GradeCard({ grade, subjectName }: GradeCardProps) {
   return (
     <Card className="shadow-md flex flex-col justify-between h-full hover:shadow-lg transition-shadow duration-200">
       <CardHeader className="pb-2 pt-4">
-        <CardTitle className="text-xs font-bold truncate" title={formatSubjectName(subjectName)}>
+        <CardTitle className="text-xs font-bold truncate text-center" title={formatSubjectName(subjectName)}>
           {formatSubjectName(subjectName)}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-grow flex items-center justify-center py-4">
         <p className="text-3xl font-medium">{grade.score}</p>
       </CardContent>
-      <CardFooter className="text-xs text-muted-foreground pt-2 pb-4 flex flex-col sm:flex-row sm:justify-between items-start sm:items-center space-y-1 sm:space-y-0">
-        <span className="whitespace-nowrap">
+      <CardFooter className="text-xs text-muted-foreground pt-2 pb-4 flex flex-col sm:flex-row sm:justify-between items-center space-y-1 sm:space-y-0">
+        <span className="whitespace-nowrap text-center w-full sm:w-auto sm:text-left">
           Date: <ClientDate dateString={grade.date} dateFormat="MMM dd, yyyy" />
         </span>
-        <span className="whitespace-nowrap">
+        <span className="whitespace-nowrap text-center w-full sm:w-auto sm:text-right">
           Updated: <ClientDate dateString={grade.lastUpdate} dateFormat="MMM dd, yyyy" />
         </span>
       </CardFooter>
