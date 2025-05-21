@@ -1,5 +1,7 @@
+
 // api-grades.ts
 export interface APIGrade { // Exporting APIGrade
+    id: string; // Unique ID for the grade entry
     studentID: string;
     subjectID: string;
     score: number;
@@ -48,6 +50,7 @@ export class GradeAPI { // Exporting GradeAPI
         }
 
         return {
+            id: String(entry[0]), // Assuming entry[0] is the unique grade ID
             studentID: String(entry[3]),
             subjectID: String(entry[4]),
             score: Number.parseFloat(entry[5]),

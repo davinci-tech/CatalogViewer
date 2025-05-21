@@ -9,7 +9,7 @@ import {
   DrawerDescription,
   DrawerFooter,
   DrawerClose
-} from "@/components/ui/drawer"; // Stays as drawer imports for the component's structure
+} from "@/components/ui/drawer";
 import {
   Table,
   TableBody,
@@ -22,29 +22,57 @@ import { Button } from "@/components/ui/button";
 import { ClientDate } from '@/components/ui/client-date';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowUp, ArrowDown } from 'lucide-react';
 
 interface SubjectDetailDrawerContentProps {
   subjectName: string;
   grades: APIGrade[];
 }
 
+type SortableColumn = 'score' | 'date' | 'lastUpdate';
+
 export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetailDrawerContentProps) {
   const [selectedRows, setSelectedRows] = React.useState<Set<string>>(new Set());
+  const [sortColumn, setSortColumn] = React.useState<SortableColumn>('date');
+  const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (column: SortableColumn) => {
+    if (sortColumn === column) {
+      setSortDirection(prevDirection => (prevDirection === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortColumn(column);
+      setSortDirection(column === 'score' ? 'desc' : 'desc'); // Default desc for score, desc for dates
+    }
+  };
 
   const sortedGrades = React.useMemo(() => {
-    return [...grades].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [grades]);
+    const sortable = [...grades];
+    sortable.sort((a, b) => {
+      let comparison = 0;
+      if (sortColumn === 'score') {
+        comparison = a.score - b.score;
+      } else if (sortColumn === 'date') {
+        comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+      } else if (sortColumn === 'lastUpdate') {
+        comparison = new Date(a.lastUpdate).getTime() - new Date(b.lastUpdate).getTime();
+      }
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+    return sortable;
+  }, [grades, sortColumn, sortDirection]);
 
   React.useEffect(() => {
-    // Reset selection when the grades data changes (e.g., opening for a new subject)
+    // Reset selection and sort when grades data changes (e.g., opening for a new subject)
     setSelectedRows(new Set());
+    setSortColumn('date');
+    setSortDirection('desc');
   }, [grades]);
 
-  const getRowId = (grade: APIGrade, index: number) => `${grade.subjectID}-${grade.date.toString()}-${grade.score}-${index}`;
+  const getRowId = (grade: APIGrade) => grade.id; // Use stable grade ID
 
   const handleSelectAll = (checked: boolean | 'indeterminate') => {
     if (checked === true) {
-      const allRowIds = new Set(sortedGrades.map((grade, index) => getRowId(grade, index)));
+      const allRowIds = new Set(sortedGrades.map(grade => getRowId(grade)));
       setSelectedRows(allRowIds);
     } else {
       setSelectedRows(new Set());
@@ -66,12 +94,23 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
   const allSelected = numTotal > 0 && numSelected === numTotal;
   const someSelected = numSelected > 0 && numSelected < numTotal;
 
+  const SortableHeader = ({ column, label, className }: { column: SortableColumn, label: string, className?: string }) => (
+    <TableHead className={cn("cursor-pointer", className)} onClick={() => handleSort(column)}>
+      <div className="flex items-center">
+        {label}
+        {sortColumn === column && (
+          sortDirection === 'asc' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" />
+        )}
+      </div>
+    </TableHead>
+  );
+
   return (
     <div className="flex flex-col h-full">
       <DrawerHeader className="text-left">
         <DrawerTitle>{subjectName} - Grade Details</DrawerTitle>
         <DrawerDescription>
-          A detailed list of your grades for {subjectName}, sorted by date (newest first).
+          A detailed list of your grades for {subjectName}. Click column headers to sort.
         </DrawerDescription>
       </DrawerHeader>
       <div className="p-4 flex-grow overflow-hidden">
@@ -88,27 +127,27 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
                       aria-label="Select all rows"
                     />
                   </TableHead>
-                  <TableHead className="w-[80px]">Grade</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Update Time</TableHead>
+                  <SortableHeader column="score" label="Grade" className="w-[100px]" />
+                  <SortableHeader column="date" label="Date" />
+                  <SortableHeader column="lastUpdate" label="Update Time" />
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sortedGrades.map((grade, index) => {
-                  const rowId = getRowId(grade, index);
+                {sortedGrades.map((grade) => {
+                  const rowId = getRowId(grade);
                   const isSelected = selectedRows.has(rowId);
                   return (
                     <TableRow
                       key={rowId}
                       data-state={isSelected ? "selected" : ""}
-                      onClick={() => handleSelectRow(rowId, !isSelected)} // Allow clicking row to select
+                      onClick={() => handleSelectRow(rowId, !isSelected)}
                       className="cursor-pointer"
                     >
                       <TableCell>
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={(checked) => handleSelectRow(rowId, checked)}
-                          aria-label={`Select row ${index + 1}`}
+                          aria-label={`Select row for grade ID ${rowId}`}
                         />
                       </TableCell>
                       <TableCell className="font-medium">{grade.score}</TableCell>
