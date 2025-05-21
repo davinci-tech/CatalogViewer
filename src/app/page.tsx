@@ -5,6 +5,7 @@ import { SubjectAPI } from '@/lib/api-subjects';
 import type { APISubject } from '@/lib/api-subjects';
 import { SubjectSummaryCard, type SubjectSummaryData } from '@/components/grades/subject-summary-card';
 import { BookOpenCheck } from 'lucide-react';
+import { ModeToggle } from '@/components/mode-toggle';
 
 const formatSubjectName = (name: string): string => {
   const regex = /^\d{2}\.\s*/;
@@ -42,13 +43,12 @@ export default async function HomePage() {
 
     const sumOfScores = subjectGrades.reduce((sum, grade) => sum + grade.score, 0);
     const averageScore = Math.ceil(sumOfScores / subjectGrades.length);
-    // const allScores = subjectGrades.map(grade => grade.score); // Replaced by full grades array
-
+    
     subjectSummaries.push({
       subjectID,
       subjectName: formattedSubName,
       averageScore,
-      grades: subjectGrades, // Pass the full grade objects
+      grades: subjectGrades, 
     });
   }
 
@@ -57,6 +57,9 @@ export default async function HomePage() {
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="flex justify-end mb-4">
+        <ModeToggle />
+      </div>
       <header className="mb-10 text-center">
         <div className="inline-flex items-center space-x-3 mb-3">
           <BookOpenCheck className="h-10 w-10 text-primary sm:h-12 sm:w-12" />
