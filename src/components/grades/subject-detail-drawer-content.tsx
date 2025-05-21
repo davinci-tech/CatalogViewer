@@ -9,7 +9,7 @@ import {
   DrawerDescription,
   DrawerFooter,
   DrawerClose
-} from "@/components/ui/drawer";
+} from "@/components/ui/drawer"; // Stays as drawer imports for the component's structure
 import {
   Table,
   TableBody,
@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ClientDate } from '@/components/ui/client-date';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface SubjectDetailDrawerContentProps {
   subjectName: string;
@@ -28,41 +29,98 @@ interface SubjectDetailDrawerContentProps {
 }
 
 export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetailDrawerContentProps) {
+  const [selectedRows, setSelectedRows] = React.useState<Set<string>>(new Set());
+
   const sortedGrades = React.useMemo(() => {
     return [...grades].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [grades]);
 
+  React.useEffect(() => {
+    // Reset selection when the grades data changes (e.g., opening for a new subject)
+    setSelectedRows(new Set());
+  }, [grades]);
+
+  const getRowId = (grade: APIGrade, index: number) => `${grade.subjectID}-${grade.date.toString()}-${grade.score}-${index}`;
+
+  const handleSelectAll = (checked: boolean | 'indeterminate') => {
+    if (checked === true) {
+      const allRowIds = new Set(sortedGrades.map((grade, index) => getRowId(grade, index)));
+      setSelectedRows(allRowIds);
+    } else {
+      setSelectedRows(new Set());
+    }
+  };
+
+  const handleSelectRow = (rowId: string, checked: boolean | 'indeterminate') => {
+    const newSelectedRows = new Set(selectedRows);
+    if (checked === true) {
+      newSelectedRows.add(rowId);
+    } else {
+      newSelectedRows.delete(rowId);
+    }
+    setSelectedRows(newSelectedRows);
+  };
+
+  const numSelected = selectedRows.size;
+  const numTotal = sortedGrades.length;
+  const allSelected = numTotal > 0 && numSelected === numTotal;
+  const someSelected = numSelected > 0 && numSelected < numTotal;
+
   return (
-    <div className="flex flex-col h-full"> {/* Changed for flexible height */}
+    <div className="flex flex-col h-full">
       <DrawerHeader className="text-left">
         <DrawerTitle>{subjectName} - Grade Details</DrawerTitle>
         <DrawerDescription>
           A detailed list of your grades for {subjectName}, sorted by date (newest first).
         </DrawerDescription>
       </DrawerHeader>
-      <div className="p-4 flex-grow overflow-hidden"> {/* Changed for scroll area expansion */}
-        <ScrollArea className="h-full"> {/* ScrollArea takes full height of parent */}
+      <div className="p-4 flex-grow overflow-hidden">
+        <ScrollArea className="h-full">
           {sortedGrades.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[50px]">
+                    <Checkbox
+                      checked={allSelected ? true : (someSelected ? 'indeterminate' : false)}
+                      onCheckedChange={handleSelectAll}
+                      disabled={numTotal === 0}
+                      aria-label="Select all rows"
+                    />
+                  </TableHead>
                   <TableHead className="w-[80px]">Grade</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Update Time</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sortedGrades.map((grade, index) => (
-                  <TableRow key={`${grade.subjectID}-${grade.date.toString()}-${grade.score}-${index}`}>
-                    <TableCell className="font-medium">{grade.score}</TableCell>
-                    <TableCell>
-                      <ClientDate dateString={grade.date} dateFormat="MMM dd, yyyy" />
-                    </TableCell>
-                    <TableCell>
-                      <ClientDate dateString={grade.lastUpdate} dateFormat="MMM dd, yyyy HH:mm" />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {sortedGrades.map((grade, index) => {
+                  const rowId = getRowId(grade, index);
+                  const isSelected = selectedRows.has(rowId);
+                  return (
+                    <TableRow
+                      key={rowId}
+                      data-state={isSelected ? "selected" : ""}
+                      onClick={() => handleSelectRow(rowId, !isSelected)} // Allow clicking row to select
+                      className="cursor-pointer"
+                    >
+                      <TableCell>
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={(checked) => handleSelectRow(rowId, checked)}
+                          aria-label={`Select row ${index + 1}`}
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium">{grade.score}</TableCell>
+                      <TableCell>
+                        <ClientDate dateString={grade.date} dateFormat="MMM dd, yyyy" />
+                      </TableCell>
+                      <TableCell>
+                        <ClientDate dateString={grade.lastUpdate} dateFormat="MMM dd, yyyy HH:mm" />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           ) : (
@@ -76,7 +134,10 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
           )}
         </ScrollArea>
       </div>
-      <DrawerFooter>
+      <DrawerFooter className="flex-col sm:flex-row sm:justify-between items-center pt-2 border-t">
+        <p className="text-sm text-muted-foreground mb-2 sm:mb-0">
+          {numSelected} of {numTotal} row(s) selected.
+        </p>
         <DrawerClose asChild>
           <Button variant="outline">Close</Button>
         </DrawerClose>
