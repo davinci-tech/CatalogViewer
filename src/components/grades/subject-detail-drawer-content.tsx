@@ -3,14 +3,11 @@
 
 import * as React from 'react';
 import type { APIGrade } from '@/lib/api-grades';
-import type { APIAbsent } from '@/lib/api-absents'; // Added
+import type { APIAbsent } from '@/lib/api-absents';
 import {
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
   DrawerFooter,
   DrawerClose
-} from "@/components/ui/drawer";
+} from "@/components/ui/drawer"; // Removed DrawerHeader, DrawerTitle, DrawerDescription
 import {
   Table,
   TableBody,
@@ -22,25 +19,25 @@ import {
 import { Button } from "@/components/ui/button";
 import { ClientDate } from '@/components/ui/client-date';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator'; // Added
+import { Separator } from '@/components/ui/separator';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 interface SubjectDetailDrawerContentProps {
   subjectName: string;
   grades: APIGrade[];
-  absences: APIAbsent[]; // Added
+  absences: APIAbsent[];
 }
 
 type SortableGradeColumn = 'score' | 'date' | 'lastUpdate';
-type SortableAbsenceColumn = 'date' | 'motivated' | 'lastUpdate'; // Added
+type SortableAbsenceColumn = 'date' | 'motivated' | 'lastUpdate';
 
 export function SubjectDetailDrawerContent({ subjectName, grades, absences }: SubjectDetailDrawerContentProps) {
   const [gradeSortColumn, setGradeSortColumn] = React.useState<SortableGradeColumn>('date');
   const [gradeSortDirection, setGradeSortDirection] = React.useState<'asc' | 'desc'>('desc');
   
-  const [absenceSortColumn, setAbsenceSortColumn] = React.useState<SortableAbsenceColumn>('date'); // Added
-  const [absenceSortDirection, setAbsenceSortDirection] = React.useState<'asc' | 'desc'>('desc'); // Added
+  const [absenceSortColumn, setAbsenceSortColumn] = React.useState<SortableAbsenceColumn>('date');
+  const [absenceSortDirection, setAbsenceSortDirection] = React.useState<'asc' | 'desc'>('desc');
   
   const closeButtonRef = React.useRef<HTMLButtonElement>(null);
 
@@ -53,12 +50,12 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
     }
   };
 
-  const handleAbsenceSort = (column: SortableAbsenceColumn) => { // Added
+  const handleAbsenceSort = (column: SortableAbsenceColumn) => {
     if (absenceSortColumn === column) {
       setAbsenceSortDirection(prevDirection => (prevDirection === 'asc' ? 'desc' : 'asc'));
     } else {
       setAbsenceSortColumn(column);
-      setAbsenceSortDirection('desc'); // Default desc for all absence columns initially
+      setAbsenceSortDirection('desc');
     }
   };
 
@@ -78,18 +75,16 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
     return sortable;
   }, [grades, gradeSortColumn, gradeSortDirection]);
 
-  const sortedAbsences = React.useMemo(() => { // Added
+  const sortedAbsences = React.useMemo(() => {
     const sortable = [...absences];
     sortable.sort((a, b) => {
       let comparison = 0;
       if (absenceSortColumn === 'date') {
         comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
       } else if (absenceSortColumn === 'motivated') {
-        // true (motivated) comes before false (unmotivated) when 'asc'
-        // false (unmotivated) comes before true (motivated) when 'desc'
         if (a.motivated === b.motivated) comparison = 0;
-        else if (a.motivated) comparison = -1; // true is "smaller"
-        else comparison = 1; // false is "larger"
+        else if (a.motivated) comparison = -1;
+        else comparison = 1;
       } else if (absenceSortColumn === 'lastUpdate') {
         comparison = new Date(a.lastUpdate).getTime() - new Date(b.lastUpdate).getTime();
       }
@@ -109,9 +104,9 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [grades, absences]);
+  }, [grades, absences, subjectName]); // Added subjectName as dependency for re-focusing header logic
 
-  const SortableHeader = <T extends string>({ column, label, currentSortColumn, currentSortDirection, handleSort, className }: { column: T, label: string, currentSortColumn: T, currentSortDirection: 'asc' | 'desc', handleSort: (col: T) => void, className?: string }) => (
+  const SortableGradeHeader = ({ column, label, currentSortColumn, currentSortDirection, handleSort, className }: { column: SortableGradeColumn, label: string, currentSortColumn: SortableGradeColumn, currentSortDirection: 'asc' | 'desc', handleSort: (col: SortableGradeColumn) => void, className?: string }) => (
     <TableHead className={cn("cursor-pointer", className)} onClick={() => handleSort(column)}>
       <div className="flex items-center">
         {label}
@@ -136,15 +131,15 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
 
   return (
     <div className="flex flex-col h-full">
-      <DrawerHeader className="text-left">
-        <DrawerTitle>{subjectName} - Details</DrawerTitle>
-        <DrawerDescription>
-          Grade and absence information for {subjectName}.
-        </DrawerDescription>
-      </DrawerHeader>
-      <div className="p-4 flex-grow overflow-hidden">
+      {/* DrawerHeader removed */}
+      <div className="p-4 flex-grow overflow-hidden"> {/* Added pt-0 to compensate for removed header padding */}
+        <div className="sticky top-0 bg-background py-3 z-10 -mx-4 px-4 border-b mb-3"> {/* Header-like bar */}
+            <h2 className="text-xl font-semibold">{subjectName} - Details</h2>
+            <p className="text-sm text-muted-foreground">
+              Grade and absence information.
+            </p>
+        </div>
         <ScrollArea className="h-full">
-          {/* Grade Details Section */}
           <h3 className="text-lg font-semibold mb-1 mt-0">Grade Details</h3>
           <p className="text-sm text-muted-foreground mb-3">
             A detailed list of your grades ({grades.length} in total). Click column headers to sort.
@@ -153,9 +148,9 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
             <Table>
               <TableHeader>
                 <TableRow>
-                  <SortableHeader column="score" label="Grade" currentSortColumn={gradeSortColumn} currentSortDirection={gradeSortDirection} handleSort={handleGradeSort} className="w-[100px]" />
-                  <SortableHeader column="date" label="Date" currentSortColumn={gradeSortColumn} currentSortDirection={gradeSortDirection} handleSort={handleGradeSort} />
-                  <SortableHeader column="lastUpdate" label="Update Time" currentSortColumn={gradeSortColumn} currentSortDirection={gradeSortDirection} handleSort={handleGradeSort} />
+                  <SortableGradeHeader column="score" label="Grade" currentSortColumn={gradeSortColumn} currentSortDirection={gradeSortDirection} handleSort={handleGradeSort} className="w-[100px]" />
+                  <SortableGradeHeader column="date" label="Date" currentSortColumn={gradeSortColumn} currentSortDirection={gradeSortDirection} handleSort={handleGradeSort} />
+                  <SortableGradeHeader column="lastUpdate" label="Update Time" currentSortColumn={gradeSortColumn} currentSortDirection={gradeSortDirection} handleSort={handleGradeSort} />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -183,7 +178,6 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
 
           <Separator className="my-6" />
 
-          {/* Absence Details Section */}
           <h3 className="text-lg font-semibold mb-1">Absence Details</h3>
            <p className="text-sm text-muted-foreground mb-3">
             A detailed list of your absences ({absences.length} in total). Click column headers to sort.
@@ -231,3 +225,4 @@ export function SubjectDetailDrawerContent({ subjectName, grades, absences }: Su
     </div>
   );
 }
+
