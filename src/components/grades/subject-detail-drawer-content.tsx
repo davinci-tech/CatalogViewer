@@ -34,6 +34,7 @@ type SortableColumn = 'score' | 'date' | 'lastUpdate';
 export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetailDrawerContentProps) {
   const [sortColumn, setSortColumn] = React.useState<SortableColumn>('date');
   const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('desc');
+  const closeButtonRef = React.useRef<HTMLButtonElement>(null);
 
   const handleSort = (column: SortableColumn) => {
     if (sortColumn === column) {
@@ -64,6 +65,14 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
     // Reset sort when grades data changes (e.g., opening for a new subject)
     setSortColumn('date');
     setSortDirection('desc');
+
+    // Focus the close button, particularly for mobile drawer experience.
+    // Use a timeout to ensure the button is rendered and visible after animation.
+    const timer = setTimeout(() => {
+      closeButtonRef.current?.focus({ preventScroll: true });
+    }, 150); // Adjust delay if needed
+
+    return () => clearTimeout(timer);
   }, [grades]);
 
 
@@ -124,7 +133,7 @@ export function SubjectDetailDrawerContent({ subjectName, grades }: SubjectDetai
       </div>
       <DrawerFooter className="pt-2 border-t">
         <DrawerClose asChild>
-          <Button variant="outline">Close</Button>
+          <Button variant="outline" ref={closeButtonRef}>Close</Button>
         </DrawerClose>
       </DrawerFooter>
     </div>
