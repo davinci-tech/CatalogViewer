@@ -50,6 +50,8 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
   );
 
   if (!mounted) {
+    // Fallback for SSR and initial client render before isMobile is determined.
+    // Renders a non-interactive card to prevent layout shifts and hydration errors.
     return (
       <Card className="shadow-md flex flex-col justify-between h-full">
         <CardHeader className="pb-2 pt-4">
@@ -92,7 +94,7 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
         <SheetTrigger asChild>
           {cardInteractiveContent}
         </SheetTrigger>
-        <SheetContent side="right" className="md:w-1/2"> 
+        <SheetContent side="right" className="md:w-1/2 md:max-w-none"> 
           <SubjectDetailDrawerContent subjectName={summary.subjectName} grades={summary.grades} />
         </SheetContent>
       </Sheet>
