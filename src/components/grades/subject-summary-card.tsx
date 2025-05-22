@@ -10,6 +10,7 @@ import type { APIGrade } from '@/lib/api-grades';
 import type { APIAbsent } from '@/lib/api-absents';
 import { SubjectDetailDrawerContent } from './subject-detail-drawer-content';
 import { cn } from '@/lib/utils'; // Import cn
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export interface SubjectSummaryData {
   subjectID: string;
@@ -98,13 +99,16 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
         <DrawerTrigger asChild>
           {cardInteractiveContent}
         </DrawerTrigger>
-        <DrawerContent>
-          <SubjectDetailDrawerContent 
-            subjectName={summary.subjectName} 
-            grades={summary.grades} 
-            absences={summary.absences} 
-            isSheet={false} 
-          />
+        {/** Inspired by "I fixed shadcn/ui Drawer for mobile": https://www.youtube.com/watch?v=QTtxeIJmN9o */}
+        <DrawerContent className="max-h-[90%]">
+          <ScrollArea className="overflow-y-auto pb-[3em]">
+            <SubjectDetailDrawerContent 
+              subjectName={summary.subjectName} 
+              grades={summary.grades} 
+              absences={summary.absences} 
+              isSheet={false} 
+            />
+          </ScrollArea>
         </DrawerContent>
       </Drawer>
     );
