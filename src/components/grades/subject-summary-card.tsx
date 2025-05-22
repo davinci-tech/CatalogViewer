@@ -9,8 +9,11 @@ import React, { useEffect, useState } from 'react';
 import type { APIGrade } from '@/lib/api-grades';
 import type { APIAbsent } from '@/lib/api-absents';
 import { SubjectDetailDrawerContent } from './subject-detail-drawer-content';
-import { cn } from '@/lib/utils'; // Import cn
+import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useSetAtom } from 'jotai';
+import { isModalOpenAtom } from '@/lib/atoms';
+
 
 export interface SubjectSummaryData {
   subjectID: string;
@@ -19,7 +22,7 @@ export interface SubjectSummaryData {
   grades: APIGrade[];
   absences: APIAbsent[];
   unmotivatedAbsencesCount: number;
-  hasCurrentMonthUnmotivatedAbsences: boolean; // Added field
+  hasCurrentMonthUnmotivatedAbsences: boolean;
 }
 
 interface SubjectSummaryCardProps {
@@ -29,10 +32,15 @@ interface SubjectSummaryCardProps {
 export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
   const [mounted, setMounted] = useState(false);
   const isMobile = useIsMobile();
+  const setIsModalOpen = useSetAtom(isModalOpenAtom);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleOpenChange = (open: boolean) => {
+    setIsModalOpen(open);
+  };
 
   const cardInteractiveContent = (
     <Card className="shadow-md flex flex-col justify-between h-full hover:shadow-lg transition-shadow duration-200 cursor-pointer">
@@ -62,7 +70,6 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
   );
 
   if (!mounted) {
-    // Fallback for SSR and initial client render to avoid hydration mismatch
     return (
       <Card className="shadow-md flex flex-col justify-between h-full">
         <CardHeader className="pb-2 pt-4">
@@ -91,16 +98,13 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
     );
   }
 
-  // Mobile: isMobile (screen width < 768px) -> use Drawer (bottom sheet)
-  // Desktop: !isMobile (screen width >= 768px) -> use Sheet (side panel, half screen)
-  if (isMobile) { // Mobile
+  if (isMobile) { // Mobile: screen width < 768px -> use Drawer (bottom sheet)
     return (
-      <Drawer>
+      <Drawer onOpenChange={handleOpenChange} snapPoints={[0.5, 0.85]} activeSnapPoint={0.5}>
         <DrawerTrigger asChild>
           {cardInteractiveContent}
         </DrawerTrigger>
-        {/** Inspired by "I fixed shadcn/ui Drawer for mobile": https://www.youtube.com/watch?v=QTtxeIJmN9o */}
-        <DrawerContent className="max-h-[90%]">
+        <DrawerContent className="max-h-[90%]"> {/* Added max-h */}
           <ScrollArea className="overflow-y-auto pb-[3em]">
             <SubjectDetailDrawerContent 
               subjectName={summary.subjectName} 
@@ -112,9 +116,9 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
         </DrawerContent>
       </Drawer>
     );
-  } else { // Desktop
+  } else { // Desktop: screen width >= 768px -> use Sheet (side panel)
     return (
-      <Sheet>
+      <Sheet onOpenChange={handleOpenChange}>
         <SheetTrigger asChild>
           {cardInteractiveContent}
         </SheetTrigger>

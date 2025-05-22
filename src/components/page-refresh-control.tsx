@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAtomValue } from 'jotai';
+import { isModalOpenAtom } from '@/lib/atoms';
 
 const PULL_ACTIVATION_THRESHOLD = 20; // Pixels to pull down before indicator appears strongly
 const PULL_TRIGGER_THRESHOLD = 70; // Pixels to pull down to trigger refresh
@@ -14,6 +16,7 @@ const MAX_VISUAL_PULL_DISTANCE = 90; // For visual feedback scaling
 export function PageRefreshControl() {
   const router = useRouter();
   const isMobile = useIsMobile();
+  const isModalOpen = useAtomValue(isModalOpenAtom);
   const [isRefreshingButton, setIsRefreshingButton] = useState(false);
 
   // Swipe to refresh states
@@ -27,14 +30,11 @@ export function PageRefreshControl() {
   const handleRefreshClick = useCallback(async () => {
     setIsRefreshingButton(true);
     router.refresh();
-    // The page reloads, so this state might be reset quickly.
-    // The animation provides immediate feedback.
     setTimeout(() => setIsRefreshingButton(false), 1200);
   }, [router]);
 
   useEffect(() => {
     if (!isMobile) {
-      // Reset states if view changes from mobile to desktop
       setShowSwipeIndicator(false);
       setIsProcessingSwipeRefresh(false);
       currentPullDistance.current = 0;
@@ -44,14 +44,15 @@ export function PageRefreshControl() {
     }
 
     const handleTouchStart = (e: TouchEvent) => {
-      if (window.scrollY === 0 && e.touches.length === 1) {
-        touchStartY.current = e.touches[0].clientY;
-        isPullingActive.current = true; // Gesture potentially starts
-        currentPullDistance.current = 0; // Reset pull distance
-        // Do not set showSwipeIndicator yet, only on move
-      } else {
+      // Do not initiate pull-to-refresh if a modal is open or not at the top of the page
+      if (isModalOpen || window.scrollY !== 0 || e.touches.length !== 1) {
         isPullingActive.current = false;
+        return;
       }
+      
+      touchStartY.current = e.touches[0].clientY;
+      isPullingActive.current = true; 
+      currentPullDistance.current = 0; 
     };
 
     const handleTouchMove = (e: TouchEvent) => {
@@ -62,12 +63,11 @@ export function PageRefreshControl() {
       const touchCurrentY = e.touches[0].clientY;
       const pullAmount = touchCurrentY - touchStartY.current;
 
-      if (pullAmount > 0) { // Pulling down
-        // Prevent scrolling only when a pull gesture is clearly identified
-        if (pullAmount > PULL_ACTIVATION_THRESHOLD / 2) { // Add a small buffer before preventing scroll
+      if (pullAmount > 0) { 
+        if (pullAmount > PULL_ACTIVATION_THRESHOLD / 2) {
              if (e.cancelable) e.preventDefault();
         }
-        currentPullDistance.current = Math.min(pullAmount, MAX_VISUAL_PULL_DISTANCE + 20); // Allow slight overpull for visual
+        currentPullDistance.current = Math.min(pullAmount, MAX_VISUAL_PULL_DISTANCE + 20); 
         
         if (pullAmount > PULL_ACTIVATION_THRESHOLD) {
           if (!showSwipeIndicator) setShowSwipeIndicator(true);
@@ -75,7 +75,6 @@ export function PageRefreshControl() {
           if (showSwipeIndicator) setShowSwipeIndicator(false);
         }
       } else { 
-        // If user scrolls up or gesture is not downwards from top
         isPullingActive.current = false;
         setShowSwipeIndicator(false);
         currentPullDistance.current = 0;
@@ -87,19 +86,17 @@ export function PageRefreshControl() {
         return;
       }
       
-      isPullingActive.current = false; // End of gesture
+      isPullingActive.current = false;
 
       if (currentPullDistance.current >= PULL_TRIGGER_THRESHOLD) {
-        setShowSwipeIndicator(true); // Ensure indicator is visible
+        setShowSwipeIndicator(true); 
         setIsProcessingSwipeRefresh(true);
         router.refresh();
-        // Visual states will be reset by page refresh
-        // For a brief moment, keep indicator:
         setTimeout(() => {
             setShowSwipeIndicator(false);
             setIsProcessingSwipeRefresh(false);
             currentPullDistance.current = 0;
-        }, 1500); // Longer than button to account for potential network
+        }, 1500); 
       } else {
         setShowSwipeIndicator(false);
         setIsProcessingSwipeRefresh(false);
@@ -118,9 +115,8 @@ export function PageRefreshControl() {
       document.removeEventListener("touchend", handleTouchEnd);
       document.removeEventListener("touchcancel", handleTouchEnd);
     };
-  }, [isMobile, router, showSwipeIndicator]); // Added showSwipeIndicator to re-evaluate if needed
+  }, [isMobile, router, showSwipeIndicator, isModalOpen]); // Added isModalOpen to dependencies
 
-  // Visual indicator for swipe to refresh
   const displaySwipeIndicator = isMobile && (showSwipeIndicator || isProcessingSwipeRefresh);
   const effectivePullDistance = currentPullDistance.current;
   const iconScale = Math.min(1, Math.max(0.5, effectivePullDistance / PULL_TRIGGER_THRESHOLD));
@@ -136,7 +132,7 @@ export function PageRefreshControl() {
             left: '50%',
             transform: `translateX(-50%) scale(${iconScale})`,
             opacity: isProcessingSwipeRefresh ? 1 : iconOpacity,
-            zIndex: 1000, // Ensure it's above other content
+            zIndex: 1000, 
             transition: 'top 0.2s ease-out, transform 0.2s ease-out, opacity 0.2s ease-out',
           }}
           className="p-2 bg-card rounded-full shadow-lg"
