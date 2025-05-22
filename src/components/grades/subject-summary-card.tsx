@@ -100,12 +100,12 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
 
   if (isMobile) { // Mobile: screen width < 768px -> use Drawer (bottom sheet)
     return (
-      <Drawer onOpenChange={handleOpenChange} snapPoints={[0.5, 0.85]} activeSnapPoint={0.5}>
+      <Drawer onOpenChange={handleOpenChange}>
         <DrawerTrigger asChild>
           {cardInteractiveContent}
         </DrawerTrigger>
-        <DrawerContent className="max-h-[90%]"> {/* Added max-h */}
-          <ScrollArea className="overflow-y-auto pb-[3em]">
+        <DrawerContent className="max-h-[90%]"> {/* Added max-h: https://www.youtube.com/watch?v=QTtxeIJmN9o */}
+          <ScrollArea className="overflow-y-auto pb-[2em]">
             <SubjectDetailDrawerContent 
               subjectName={summary.subjectName} 
               grades={summary.grades} 
