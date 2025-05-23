@@ -1,14 +1,10 @@
-
-import { GradeAPI } from '@/lib/api-grades';
 import type { APIGrade } from '@/lib/api-grades';
-import { SubjectAPI } from '@/lib/api-subjects';
-import type { APISubject } from '@/lib/api-subjects';
-import { AbsentAPI } from '@/lib/api-absents';
 import type { APIAbsent } from '@/lib/api-absents';
 import { SubjectSummaryCard, type SubjectSummaryData as CardSubjectSummaryData } from '@/components/grades/subject-summary-card';
 import { BookOpenCheck } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
 import { PageRefreshControl } from '@/components/page-refresh-control'; // Added import
+import { StateManager } from '@/lib/state-manager';
 
 // Local interface for page data aggregation, distinct from the one in SubjectSummaryCard
 interface PageSubjectSummaryData extends CardSubjectSummaryData {
@@ -22,9 +18,10 @@ const formatSubjectName = (name: string): string => {
 };
 
 export default async function HomePage() {
-  const grades: APIGrade[] = await GradeAPI.fetchGrades();
-  const subjects: APISubject[] = await SubjectAPI.fetchSubjects();
-  const absences: APIAbsent[] = await AbsentAPI.fetchAbsents();
+  const state = await StateManager.getState();
+  const grades = state.grades;
+  const subjects = state.subjects;
+  const absences = state.absents;
 
   const subjectNameMap = new Map<string, string>();
   subjects.forEach(subject => {
