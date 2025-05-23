@@ -1,19 +1,17 @@
 import type {NextConfig} from 'next';
-import withPWAInit from 'next-pwa';
+import withPWAInit from '@ducanh2912/next-pwa';
 
 const isDev = process.env.NODE_ENV === 'development';
 
+
 const withPWA = withPWAInit({
   dest: 'public',
+  // // swSrc: 'sw.js', // Your source file in project root
+  // swDest: 'public/sw.js', // Explicit output path
+  // mode: 'production',
   register: true,
-  skipWaiting: true,
-  disable: isDev,
-  // exclude: [
-  //   // Exclude files from caching here if needed
-  //   ({ asset, compilation }) => {
-  //     return asset.name.startsWith("server/") || asset.name.match(/^((app-pages-browser)|(bundles|chunks)\/(?!action-client-wrapper\.js)).*$/);
-  //   }
-  // ],
+  // skipWaiting: true,
+  disable: false,
 });
 
 const nextConfig: NextConfig = {

@@ -4,7 +4,6 @@ import { Roboto } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
-import ServiceWorkerRegister from './ServiceWorkerRegister';
 
 const roboto = Roboto({
   weight: ['400', '500', '700'],
@@ -50,7 +49,6 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ServiceWorkerRegister />
           {children}
           <Toaster />
         </ThemeProvider>
