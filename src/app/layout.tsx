@@ -25,6 +25,25 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+                <script dangerouslySetInnerHTML={{__html:`
+if ('serviceWorker' in navigator && 'periodicSync' in ServiceWorkerRegistration.prototype) {
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('/sync/sw.js');
+      // Request permission for periodic background sync
+      const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+      if (status.state === 'granted') {
+        // Service worker and permission are ready
+        console.log('Service worker registered and periodic background sync granted.');
+      } else {
+        console.warn('Periodic background sync permission not granted:', status.state);
+      }
+    } catch (err) {
+      console.error('Service worker registration or periodic sync failed:', err);
+    }
+  });
+}`}}>
+        </script>
         <meta name="application-name" content="CatalogViewer" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
