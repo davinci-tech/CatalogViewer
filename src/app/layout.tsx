@@ -38,9 +38,8 @@ export default function RootLayout({
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover" />
         {/* For the logo */}
         <link rel="apple-touch-icon" href="icons/apple-icon-180.png"/>
-
         <meta name="apple-mobile-web-app-capable" content="yes"/>
-
+        <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-startup-image" href="icons/apple-splas/h-2048-2732.jpg" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
         <link rel="apple-touch-startup-image" href="icons/apple-splash-2732-2048.jpg" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"/>
         <link rel="apple-touch-startup-image" href="icons/apple-splash-1668-2388.jpg" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
@@ -81,6 +80,16 @@ export default function RootLayout({
         <link rel="apple-touch-startup-image" href="icons/apple-splash-1136-640.jpg" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"/>
       </head>
       <body className={`${roboto.className} antialiased`}>
+        {/* Register service worker for PWA */}
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js');
+              });
+            }
+          `
+        }} />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
