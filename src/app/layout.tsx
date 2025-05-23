@@ -1,8 +1,10 @@
+import React from 'react';
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
+import ServiceWorkerRegister from './ServiceWorkerRegister';
 
 const roboto = Roboto({
   weight: ['400', '500', '700'],
@@ -42,22 +44,13 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes"/>
       </head>
       <body className={`${roboto.className} antialiased`}>
-        {/* Register service worker for PWA */}
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js');
-              });
-            }
-          `
-        }} />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
+          <ServiceWorkerRegister />
           {children}
           <Toaster />
         </ThemeProvider>
