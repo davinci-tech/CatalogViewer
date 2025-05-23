@@ -59,4 +59,6 @@ export default function RootLayout({
   );
 }
 
+// https://github.com/vercel/vercel/discussions/10117
 export const fetchCache = 'force-no-store';
+export const runtime = 'nodejs';
