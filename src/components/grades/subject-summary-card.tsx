@@ -56,7 +56,7 @@ export function SubjectSummaryCard({ summary }: SubjectSummaryCardProps) {
         <p className="text-3xl">{summary.grades.length > 0 ? summary.averageScore : '-'}</p>
       </CardContent>
       <CardFooter className="text-xs text-muted-foreground pt-2 pb-4 flex justify-between items-center">
-        <span className="whitespace-nowrap">
+        <span className="whitespace-nowrap max-w-[85%] overflow-hidden text-ellipsis">
           {summary.grades.length > 0 ? summary.grades.map(g => g.score).join(' ') : 'No grades'}
         </span>
         <span className={cn(
