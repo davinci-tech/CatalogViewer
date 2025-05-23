@@ -106,7 +106,7 @@ export default async function HomePage() {
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
       <div className="flex justify-end items-center mb-4 space-x-2"> {/* Wrapper for top-right controls */}
         <ModeToggle />
-        <PageRefreshControl /> {/* Added PageRefreshControl */}
+        {/* <PageRefreshControl /> Added PageRefreshControl */}
       </div>
       <header className="mb-10 text-center">
         <div className="inline-flex items-center space-x-3 mb-3">
