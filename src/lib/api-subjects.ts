@@ -1,4 +1,6 @@
 // api-subjects.ts
+import { BaseAPI } from './api-base';
+
 export interface APISubject { // Exporting APISubject
     subjectID: string;
     name: string;
@@ -10,23 +12,12 @@ interface APIResponse {
     data: string;
 }
 
-export class SubjectAPI { // Exporting SubjectAPI
-    private static readonly TAUTHORIZATION = 'c3d33eac43e8a0c9';
-    private static readonly APIKEY = '993a775e83ab2a875060a921f1e61c7e3c690e99';
-    private static readonly URL = 'https://noteincatalog.ro/_api/app_parinti/v20_server_service.php';
-
-    private static getHeaders(): Headers {
-        const headers = new Headers();
-        headers.append('Content-Type', 'application/x-www-form-urlencoded');
-        headers.append('tAuthorization', SubjectAPI.TAUTHORIZATION);
-        return headers;
-    }
-
+export class SubjectAPI extends BaseAPI { // Extending BaseAPI
     private static getFormData(): URLSearchParams {
         const params = new URLSearchParams();
         params.append('iselev', 'true');
-        params.append('apikey', SubjectAPI.APIKEY);
-        params.append('idstudent', '610023'); // Student ID still required
+        params.append('apikey', this.APIKEY);
+        params.append('idstudent', this.STUDENT_ID); // Student ID still required
         params.append('limitsup', '800');
         params.append('action', 'ACTION_GETDATABASE');
         params.append('encryption_key', '');
@@ -52,10 +43,10 @@ export class SubjectAPI { // Exporting SubjectAPI
 
     public static async fetchSubjects(): Promise<APISubject[]> {
         try {
-            const response = await fetch(SubjectAPI.URL, {
+            const response = await fetch(this.URL, {
                 method: 'POST',
-                headers: SubjectAPI.getHeaders(),
-                body: SubjectAPI.getFormData().toString() // .toString() is important
+                headers: this.getHeaders(),
+                body: this.getFormData().toString() // .toString() is important
             });
 
             if (!response.ok) {

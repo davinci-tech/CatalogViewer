@@ -1,5 +1,6 @@
-
 // api-grades.ts
+import { BaseAPI } from './api-base';
+
 export interface APIGrade { // Exporting APIGrade
     id: string; // Unique ID for the grade entry
     studentID: string;
@@ -14,24 +15,12 @@ interface APIResponse {
     data: string;
 }
 
-export class GradeAPI { // Exporting GradeAPI
-    private static readonly TAUTHORIZATION = 'c3d33eac43e8a0c9';
-    private static readonly APIKEY = '993a775e83ab2a875060a921f1e61c7e3c690e99';
-    private static readonly URL = 'https://noteincatalog.ro/_api/app_parinti/v20_server_service.php';
-    private static readonly STUDENT_ID = '610023';
-
-    private static getHeaders(): Headers {
-        const headers = new Headers();
-        headers.append('Content-Type', 'application/x-www-form-urlencoded');
-        headers.append('tAuthorization', GradeAPI.TAUTHORIZATION);
-        return headers;
-    }
-
+export class GradeAPI extends BaseAPI { // Inherit from BaseAPI
     private static getFormData(): URLSearchParams {
         const params = new URLSearchParams();
         params.append('iselev', 'true');
-        params.append('apikey', GradeAPI.APIKEY);
-        params.append('idstudent', GradeAPI.STUDENT_ID);
+        params.append('apikey', this.APIKEY);
+        params.append('idstudent', this.STUDENT_ID);
         params.append('limitsup', '800');
         params.append('action', 'ACTION_GETDATABASE');
         params.append('encryption_key', '');
@@ -61,10 +50,10 @@ export class GradeAPI { // Exporting GradeAPI
 
     public static async fetchGrades(): Promise<APIGrade[]> {
         try {
-            const response = await fetch(GradeAPI.URL, {
+            const response = await fetch(this.URL, {
                 method: 'POST',
-                headers: GradeAPI.getHeaders(),
-                body: GradeAPI.getFormData().toString() // .toString() is important for URLSearchParams with fetch body
+                headers: this.getHeaders(),
+                body: this.getFormData().toString() // .toString() is important for URLSearchParams with fetch body
             });
 
             if (!response.ok) {
