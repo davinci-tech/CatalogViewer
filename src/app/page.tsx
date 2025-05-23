@@ -112,7 +112,7 @@ export default async function HomePage() {
           <h1 className="text-3xl sm:text-4xl font-bold">CatalogViewer</h1>
         </div>
         <p className="text-md sm:text-lg text-muted-foreground">
-          Welcome! View your academic performance summary by subject. Click on a card for details. The data was last fetched on {lastFetched ? new Date(lastFetched).toLocaleString('en-GB', {month: "long", day:"2-digit", hour: "numeric", minute: "numeric"}) : 'unknown'}.
+          Welcome! View your academic performance summary by subject. Click on a card for details. The data was last fetched on {lastFetched ? new Date(lastFetched).toLocaleString('en-GB', {month: "long", day:"2-digit", hour: "numeric", minute: "numeric", second: "numeric"}) : 'unknown'}.
         </p>
       </header>
 
