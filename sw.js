@@ -5,7 +5,7 @@ import { NetworkFirst } from 'workbox-strategies';
 
 // Precache static assets (required for injectManifest)
 precacheAndRoute(self.__WB_MANIFEST);
-console.log('Custom Service Worker Loaded. Precached assets...');
+console.log('Custom Service Worker Loaded. Precaching assets...');
 
 // NetworkFirst strategy for the root URL ('/')
 registerRoute(

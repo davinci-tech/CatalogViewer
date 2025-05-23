@@ -1,7 +1,6 @@
 import type { APIGrade } from './api-grades';
 import type { APISubject } from './api-subjects';
 import type { APIAbsent } from './api-absents';
-import { assert } from 'console';
 
 export enum StateDiffType {
   ADD = 'ADD',
@@ -47,8 +46,7 @@ export class State {
     for (const grade of secondState) map[grade.id].secondState = grade;
 
     for (const [id, { firstState, secondState }] of Object.entries(map)) {
-      if (firstState && secondState) {
-        assert(typeof firstState === typeof secondState, 'Types do not match');
+      if (firstState && secondState && typeof firstState === typeof secondState) {
         for (const key of Object.keys(firstState) as (keyof APIGrade)[]) {
           if (firstState[key] !== secondState[key]) {
             diffs.push({

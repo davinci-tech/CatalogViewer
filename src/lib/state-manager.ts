@@ -6,7 +6,7 @@ import { AbsentAPI } from './api-absents';
 const LOCAL_STORAGE_KEY = 'catalog_state';
 
 export class StateManager {
-  static async getState(): Promise<State> {
+  static async getRemoteState(): Promise<State | undefined> {
     try {
       const [grades, subjects, absents] = await Promise.all([
         GradeAPI.fetchGrades(),
@@ -14,10 +14,22 @@ export class StateManager {
         AbsentAPI.fetchAbsents(),
       ]);
       const state = new State(grades, subjects, absents, Date.now());
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
-      }
       return state;
+    } catch (error) {
+      return undefined;
+    }
+  }
+
+  static async getState(): Promise<State> {
+    try {
+      const remoteState = await StateManager.getRemoteState();
+      if (remoteState) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(remoteState));
+        }
+        return remoteState;
+      }
+      return new State([], [], [], Date.now());
     } catch (error) {
       // Fallback to localStorage
       if (typeof window !== 'undefined') {
