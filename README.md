@@ -8,6 +8,8 @@ To get started, take a look at src/app/page.tsx.
 
 Finally, a decent app for my grades (today is 22 May, on the 10th of June I finish school - so it's a little late... but still it's cool).
 
+PS: The icon was generated with `npx pwa-asset-generator ./src/app/icon.png ./public/icons --icon-only -p 20% -b '#4941A2'` and `https://ray.so/lTvv7Tl`
+
 ## Features
 
 - **Fetch Grades & Absences:** Retrieves grades and absences from the school's API.
