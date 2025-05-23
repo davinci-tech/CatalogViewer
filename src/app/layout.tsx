@@ -36,10 +36,10 @@ export default function RootLayout({
         <meta name="theme-color" content="#3F51B5" />
         {/* Viewport settings are crucial for PWA responsiveness */}
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover" />
+        <link rel="manifest" href="/manifest.json" />
         {/* For the logo */}
         <link rel="apple-touch-icon" href="icons/apple-icon-180.png"/>
         <meta name="apple-mobile-web-app-capable" content="yes"/>
-        <link rel="manifest" href="/manifest.json" />
       </head>
       <body className={`${roboto.className} antialiased`}>
         {/* Register service worker for PWA */}
