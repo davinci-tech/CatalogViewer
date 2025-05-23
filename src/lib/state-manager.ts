@@ -13,7 +13,7 @@ export class StateManager {
         SubjectAPI.fetchSubjects(),
         AbsentAPI.fetchAbsents(),
       ]);
-      const state = new State(grades, subjects, absents);
+      const state = new State(grades, subjects, absents, Date.now());
       if (typeof window !== 'undefined') {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
       }
@@ -24,10 +24,10 @@ export class StateManager {
         const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (cached) {
           const parsed = JSON.parse(cached);
-          return new State(parsed.grades, parsed.subjects, parsed.absents);
+          return new State(parsed.grades, parsed.subjects, parsed.absents, parsed.timestamp);
         }
       }
-      return new State([], [], []);
+      return new State([], [], [], Date.now());
     }
   }
 }

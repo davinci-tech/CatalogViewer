@@ -22,15 +22,18 @@ export class State {
   grades: APIGrade[];
   subjects: APISubject[];
   absents: APIAbsent[];
+  timestamp: number;
 
   constructor(
     grades: APIGrade[] = [],
     subjects: APISubject[] = [],
-    absents: APIAbsent[] = []
+    absents: APIAbsent[] = [],
+    timestamp: number = Date.now()
   ) {
     this.grades = grades;
     this.subjects = subjects;
     this.absents = absents;
+    this.timestamp = timestamp;
   }
 
   public diffGrades(
