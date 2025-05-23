@@ -46,14 +46,16 @@ if ('serviceWorker' in navigator && 'periodicSync' in ServiceWorkerRegistration.
         </script>
         <meta name="application-name" content="CatalogViewer" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="CatalogViewer" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
         <meta name="msapplication-TileColor" content="#3F51B5" />
         <meta name="msapplication-tap-highlight" content="no" />
-        <meta name="theme-color" content="#3F51B5" />
+        <meta name="msapplication-navbutton-color" content="transparent" />
+        <meta name="nav-bar-style" content="transparent" />
+        <meta name="theme-color" content="transparent" />
         {/* Viewport settings are crucial for PWA responsiveness */}
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover" />
         <link rel="manifest" href="/manifest.json" />

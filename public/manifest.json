@@ -4,8 +4,9 @@
   "description": "View your academic grades and absences.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FAFAFA",
-  "theme_color": "#3F51B5",
+  "background_color": "transparent",
+  "theme_color": "transparent",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "icons/manifest-icon-192.maskable.png",
