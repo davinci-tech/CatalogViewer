@@ -28,7 +28,7 @@ export default async function HomePage() {
 
   const subjectNameMap = new Map<string, string>();
   subjects.forEach(subject => {
-    subjectNameMap.set(subject.subjectID, subject.name);
+    subjectNameMap.set(subject.id, subject.name);
   });
 
   const gradesBySubject = new Map<string, APIGrade[]>();

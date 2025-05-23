@@ -2,7 +2,7 @@
 import { BaseAPI } from './api-base';
 
 export interface APISubject { // Exporting APISubject
-    subjectID: string;
+    id: string;
     name: string;
     abbreviation: string;
 }
@@ -35,7 +35,7 @@ export class SubjectAPI extends BaseAPI { // Extending BaseAPI
         }
 
         return {
-            subjectID: String(entry[0]),
+            id: String(entry[0]),
             name: String(entry[2]),
             abbreviation: String(entry[4])
         };
